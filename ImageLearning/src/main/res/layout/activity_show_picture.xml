@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_show_picture"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:background="@android:color/black"
+    tools:context="com.google.sample.imagelearning.ShowPictureActivity">
+    <ImageView
+        android:padding="1dp"
+        android:cropToPadding="true"
+        android:adjustViewBounds="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/image_token"
+        android:background="@drawable/img_borded"
+        android:id="@+id/fullscreen_img"/>
+
+    <org.apmem.tools.layouts.FlowLayout
+        android:layout_width="fill_parent"
+        android:layout_below="@id/fullscreen_img"
+        android:id="@+id/scrollView_linearLayout"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content" />
+
+
+</RelativeLayout>
