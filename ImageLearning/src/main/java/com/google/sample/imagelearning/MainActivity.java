@@ -62,7 +62,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String CLOUD_VISION_API_KEY = " AIzaSyD07diPeROl9YQQE-BLc7M9YLQCMQIKMQc ";
+    private static final String CLOUD_VISION_API_KEY = " my apy key ";
     public static final String FILE_NAME = "temp.jpg";
     private static final String ANDROID_CERT_HEADER = "X-Android-Cert";
     private static final String ANDROID_PACKAGE_HEADER = "X-Android-Package";

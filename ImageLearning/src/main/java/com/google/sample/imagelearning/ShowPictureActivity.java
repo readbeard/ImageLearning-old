@@ -66,7 +66,7 @@ public class ShowPictureActivity extends AppCompatActivity {
         doubleRegex = Pattern.compile(getString(R.string.double_regex));
 
         addButtons();
-        
+
         setImageViewBitmap(absolutePath);
 
 
