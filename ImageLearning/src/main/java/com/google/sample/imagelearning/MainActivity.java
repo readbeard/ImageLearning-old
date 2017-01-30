@@ -62,7 +62,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String CLOUD_VISION_API_KEY = " my apy key ";
+    private static final String CLOUD_VISION_API_KEY = " ";
     public static final String FILE_NAME = "temp.jpg";
     private static final String ANDROID_CERT_HEADER = "X-Android-Cert";
     private static final String ANDROID_PACKAGE_HEADER = "X-Android-Package";
@@ -141,11 +141,11 @@ public class MainActivity extends AppCompatActivity {
                                 MediaStore.Images.Media.getBitmap(getContentResolver(), uri),
                                 1200);
 
-                callCloudVision(bitmap);
-                /*Intent showImageFullscreen = new Intent(MainActivity.this,ShowPictureActivity.class);
+                //callCloudVision(bitmap);
+                Intent showImageFullscreen = new Intent(MainActivity.this,ShowPictureActivity.class);
                 showImageFullscreen.putExtra("IMAGE",getCameraFile().getAbsolutePath());
                 showImageFullscreen.putExtra("VALUES"," THE : 0.987 : QUICK : 0.876: BROWN : FOX : JUMPS : OVER : THE : LAZY : DOG");
-                startActivityForResult(showImageFullscreen,SHOW_PICTURE_ACTIVITY);*/
+                startActivityForResult(showImageFullscreen,SHOW_PICTURE_ACTIVITY);
 
             } catch (IOException e) {
                 Log.d(TAG, "Image picking failed because " + e.getMessage());
@@ -267,7 +267,7 @@ public class MainActivity extends AppCompatActivity {
         }.execute();
     }
 
-    public Bitmap scaleBitmapDown(Bitmap bitmap, int maxDimension) {
+    public static Bitmap scaleBitmapDown(Bitmap bitmap, int maxDimension) {
 
         int originalWidth = bitmap.getWidth();
         int originalHeight = bitmap.getHeight();

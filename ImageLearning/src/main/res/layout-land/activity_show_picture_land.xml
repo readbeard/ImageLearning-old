@@ -13,7 +13,7 @@
         android:cropToPadding="true"
         android:adjustViewBounds="true"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:background="@drawable/img_borded"
         android:contentDescription="@string/image_token"
         android:id="@+id/fullscreen_img"/>

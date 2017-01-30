@@ -8,16 +8,18 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.net.Uri;
 import android.os.Build;
+import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 
@@ -44,6 +46,8 @@ public class ShowPictureActivity extends AppCompatActivity {
 
     private TextToSpeech t1;
     private Pattern doubleRegex;
+
+    private boolean utteranceCompleted;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,12 +83,15 @@ public class ShowPictureActivity extends AppCompatActivity {
         while (scanner.hasNext()) {
             final String next = scanner.next();
             boolean isDouble = doubleRegex.matcher(next).matches();
-            System.out.println(next +", "+ isDouble);
+
             if(!isDouble && ! next.equals("")) {
-                Button calculatedWordButton = new Button(this);
+                final Button calculatedWordButton = new Button(this);
+                final Animation myAnim = AnimationUtils.loadAnimation(this, R.anim.fade_inout);
                 calculatedWordButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        if(!utteranceCompleted)
+                            calculatedWordButton.startAnimation(myAnim);
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                             ttsGreater21(next);
                         } else {
@@ -92,6 +99,7 @@ public class ShowPictureActivity extends AppCompatActivity {
                         }
                     }
                 });
+
                 calculatedWordButton.setLayoutParams(new ActionBar.LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT));
                 calculatedWordButton.setText(next);
                 scrollViewLinearLayout.addView(calculatedWordButton);
@@ -112,12 +120,20 @@ public class ShowPictureActivity extends AppCompatActivity {
                 }
             }
         });
+
+        t1.setOnUtteranceCompletedListener(new TextToSpeech.OnUtteranceCompletedListener() {
+            @Override
+            public void onUtteranceCompleted(String utteranceId) {
+                utteranceCompleted = true;
+            }
+        });
     }
 
     public void onPause(){
         if(t1 !=null){
             t1.stop();
             t1.shutdown();
+            utteranceCompleted = false;
         }
         super.onPause();
     }
@@ -133,12 +149,17 @@ public class ShowPictureActivity extends AppCompatActivity {
             FileInputStream fis = new FileInputStream(new File(absolutePath));
             bmp = BitmapFactory.decodeStream(fis);
             bmp = rotateBitmap(bmp,calculateImageOrientation(absolutePath));
+            bmp =
+                    MainActivity.scaleBitmapDown(
+                            MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.fromFile(new File(absolutePath))),
+                            1200);
             img.setImageBitmap(bmp);
             fis.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 
     private int calculateImageOrientation(String path){
         ExifInterface exif = null;
