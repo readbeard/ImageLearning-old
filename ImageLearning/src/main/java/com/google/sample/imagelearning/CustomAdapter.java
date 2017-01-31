@@ -27,9 +27,9 @@ public class CustomAdapter  extends BaseAdapter{
         activity = a;
         this.data = data;
         inflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-         langs = new String[]{"Italiano", "French", "Espanol", "German"};
+         langs = new String[]{"English","Italiano", "French", "Espanol", "German"};
         //TODO: change this icons with proper state flag.
-        langIconsIDs = new int[]{R.mipmap.ic_launcher,R.mipmap.ic_launcher,R.mipmap.ic_launcher,R.mipmap.ic_launcher};
+        langIconsIDs = new int[]{R.mipmap.ic_launcher,R.mipmap.ic_launcher,R.mipmap.ic_launcher,R.mipmap.ic_launcher,R.mipmap.ic_launcher};
         selectedIndex = -1;
     }
 

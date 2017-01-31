@@ -20,6 +20,7 @@ public class SelectLanguageDialog extends DialogFragment{
 
     String language = "";
     private OnCompleteListener mListener;
+    private int langCode;
 
 
     /**
@@ -41,9 +42,10 @@ public class SelectLanguageDialog extends DialogFragment{
 
         final ListView mLocationList = (ListView)v.findViewById(R.id.listview);
 
-        final CustomAdapter adapter = new CustomAdapter(getActivity(),4); //4 languages supported
+        final CustomAdapter adapter = new CustomAdapter(getActivity(),5); //4 languages supported
         mLocationList.setAdapter(adapter);
         mLocationList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        adapter.setSelectedIndex(langCode);
 
         mLocationList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -52,6 +54,8 @@ public class SelectLanguageDialog extends DialogFragment{
                 String selectedLanguage = selectedLanguageTV.getText().toString();
 
                 String locale = "en_UK";
+                if(selectedLanguage.equals("English"))
+                    locale = "it_IT";
                 if(selectedLanguage.equals("Italiano"))
                     locale = "it_IT";
                 else if(selectedLanguage.equals("French"))
@@ -116,6 +120,19 @@ public class SelectLanguageDialog extends DialogFragment{
      */
     public static interface OnCompleteListener {
         public abstract void onComplete(String time);
+    }
+
+    public void setInitaliiySelectedLang(String language){
+        if(language.contains("EN"))
+            this.langCode = 0;
+        if(language.contains("IT"))
+            this.langCode = 1;
+        if(language.contains("FR"))
+            this.langCode = 2;
+        if(language.contains("ES"))
+            this.langCode = 3;
+        if(language.contains("DE"))
+            this.langCode = 4;
     }
 }
 

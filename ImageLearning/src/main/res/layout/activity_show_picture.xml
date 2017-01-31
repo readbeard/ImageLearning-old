@@ -17,8 +17,8 @@
         android:background="@drawable/img_borded"
         android:id="@+id/fullscreen_img"/>
     <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
         android:id="@+id/change_language"
         android:layout_alignBottom="@id/fullscreen_img"
         android:layout_alignEnd="@id/fullscreen_img"/>

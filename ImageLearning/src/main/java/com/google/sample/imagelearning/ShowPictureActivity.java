@@ -174,6 +174,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
             @Override
             public void onClick(View v) {
                 SelectLanguageDialog dialog = new SelectLanguageDialog();
+                dialog.setInitaliiySelectedLang(currentLanguage);
                 dialog.show(getFragmentManager(),"Language dialog");
             }
         });
