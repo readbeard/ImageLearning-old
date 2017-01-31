@@ -1,6 +1,7 @@
 package com.google.sample.imagelearning;
 
 import android.annotation.TargetApi;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -9,31 +10,47 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
+
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.extensions.android.json.AndroidJsonFactory;
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestInitializer;
+
+import com.google.api.services.translate.Translate;
+import com.google.api.services.translate.TranslateRequestInitializer;
+import com.google.api.services.translate.model.TranslationsListResponse;
+import com.google.api.services.translate.model.TranslationsResource;
+
 
 import org.apmem.tools.layouts.FlowLayout;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
-public class ShowPictureActivity extends AppCompatActivity {
+public class ShowPictureActivity extends AppCompatActivity implements  SelectLanguageDialog.OnCompleteListener{
     private ImageView img;
     private ScrollView scrollView;
     private RelativeLayout.LayoutParams scrollViewParams;
@@ -49,18 +66,32 @@ public class ShowPictureActivity extends AppCompatActivity {
 
     private boolean utteranceCompleted;
 
+    private int buttonTotalNumber;
+    private String currentLanguage="en_UK";
+    private ImageButton changeLanguageButton;
+
+    /**
+     * Called on activity create. It sets the proper layout, considering the current orientation, and sets up the view that are
+     * to be used in the whole class. This includes also the buttons, that are dinamically inserted (see addButtons() for more details)
+     * and the imageview containing the picture taken by the user. It is resized because of screen sizes issues.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         int orientation = getResources().getConfiguration().orientation;
-        if(orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+        if(orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
             setContentView(R.layout.activity_show_picture);
-        else
+            relativeLayout = (RelativeLayout) findViewById(R.id.activity_show_picture);
+        }
+        else {
             setContentView(R.layout.activity_show_picture_land);
+            relativeLayout = (RelativeLayout) findViewById(R.id.activity_show_picture_land);
+
+        }
 
         //scrollView = (ScrollView) findViewById(R.id.button_scrollview);
-        relativeLayout = (RelativeLayout) findViewById(R.id.activity_show_picture);
         //scrollViewParams = (RelativeLayout.LayoutParams) scrollView.getLayoutParams();
         scrollViewLinearLayout = (FlowLayout) findViewById(R.id.scrollView_linearLayout);
         img = (ImageView) findViewById(R.id.fullscreen_img);
@@ -69,6 +100,8 @@ public class ShowPictureActivity extends AppCompatActivity {
         visionValues = getIntent().getStringExtra("VALUES");
         doubleRegex = Pattern.compile(getString(R.string.double_regex));
 
+        changeLanguageButton = (ImageButton) findViewById(R.id.change_language);
+
         addButtons();
 
         setImageViewBitmap(absolutePath);
@@ -76,10 +109,36 @@ public class ShowPictureActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Changes the language of the textToSpeech (t1) object and of the text of the buttons. It calls translateText() that is
+     * triggering google translate APIs
+     * @param targetLanguage the language that has to be set.
+     */
+    private void changeLanguage(Locale targetLanguage){
+        //this is needed since when adding buttons on rotating screen we call again addButton(), that relies on
+        //visualValues string to fill the text of the buttons. Since we are translating it, we need to update it.
+        if(t1!= null ){
+            t1.setLanguage(targetLanguage);
+        }
+        visionValues ="";
+        for(int i =0; i<buttonTotalNumber;i++)
+            translateText("button_"+i);
+
+    }
+
+    /**
+     * Adds the buttton dinamically to the FlowLayout next to the imageView containing the picture. It parses the 'visionValues'
+     * string, that is the result taken from Google Vision APIs in the previous activity. Note that, if language is set, this
+     * string is updated with the translated version of it, since this method is called every time the language has to be changed.
+     */
     private void addButtons() {
+        ProgressDialog temp = new ProgressDialog(this);
+        temp.setMessage("WAIT");
         scrollViewLinearLayout = (FlowLayout) findViewById(R.id.scrollView_linearLayout);
+        changeLanguageButton = (ImageButton) findViewById(R.id.change_language);
         Scanner scanner = new Scanner(visionValues);
         scanner.useDelimiter("I found these things:|\\W|\\n|\\s ");
+        int i = 0;
         while (scanner.hasNext()) {
             final String next = scanner.next();
             boolean isDouble = doubleRegex.matcher(next).matches();
@@ -93,22 +152,38 @@ public class ShowPictureActivity extends AppCompatActivity {
                         if(!utteranceCompleted)
                             calculatedWordButton.startAnimation(myAnim);
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            ttsGreater21(next);
+                            //needed to put the text of the button here. You cannot put 'next' since if you change
+                            //the button's text, this onClick method won't see that change.
+                            ttsGreater21(calculatedWordButton.getText().toString());
                         } else {
-                            ttsUnder20(next);
+                            ttsUnder20(calculatedWordButton.getText().toString());
                         }
                     }
                 });
 
                 calculatedWordButton.setLayoutParams(new ActionBar.LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT));
                 calculatedWordButton.setText(next);
+                calculatedWordButton.setTag("button_"+i);
                 scrollViewLinearLayout.addView(calculatedWordButton);
+                i++;
             }
+            buttonTotalNumber = i;
         }
 
+        changeLanguageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SelectLanguageDialog dialog = new SelectLanguageDialog();
+                dialog.show(getFragmentManager(),"Language dialog");
+            }
+        });
 
+        temp.dismiss();
     }
 
+    /**
+     * Initializes the 'textToSpeech' object, with as default the English language.
+     */
     @Override
     public void onResume() {
         super.onResume();
@@ -129,6 +204,10 @@ public class ShowPictureActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Frees memory by shutting down 'texToSpeech' object when activity is paused.
+     */
+    @Override
     public void onPause(){
         if(t1 !=null){
             t1.stop();
@@ -144,15 +223,21 @@ public class ShowPictureActivity extends AppCompatActivity {
         outState.putString("path",absolutePath);
     }
 
+    /**
+     * Sets the imageView background as the bitmap created from the picture taken. It scales it, in order to support different
+     * picture sizes (fullscreen sometimes, bug still opened). It rotates it in order to perfectly fit the screen considering the
+     * width and height of the picture.
+     * @param absolutePath the path of the file containing the picture taken in previous activity.
+     */
     private void setImageViewBitmap(String absolutePath) {
         try {
             FileInputStream fis = new FileInputStream(new File(absolutePath));
             bmp = BitmapFactory.decodeStream(fis);
-            bmp = rotateBitmap(bmp,calculateImageOrientation(absolutePath));
             bmp =
                     MainActivity.scaleBitmapDown(
                             MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.fromFile(new File(absolutePath))),
                             1200);
+            rotateBitmap(bmp,calculateImageOrientation(absolutePath));
             img.setImageBitmap(bmp);
             fis.close();
         } catch (Exception e) {
@@ -160,7 +245,11 @@ public class ShowPictureActivity extends AppCompatActivity {
         }
     }
 
-
+    /**
+     * Computes the best orientation for the picture taken. Returns the orientation that has to be sent to 'rotateBitmap' method.
+     * @param path the path of the picture taken
+     * @return the orientation
+     */
     private int calculateImageOrientation(String path){
         ExifInterface exif = null;
         try {
@@ -175,6 +264,13 @@ public class ShowPictureActivity extends AppCompatActivity {
         return orientation;
     }
 
+    /**
+     * Rotates the bitmap in order to show it better basing on its size. If picture taken in landscape mode, it rotates it
+     * to that mode, and so on...
+     * @param bitmap the bitmap to be rotated
+     * @param orientation the right orientation for it
+     * @return the rotated bitmap.
+     */
     public Bitmap rotateBitmap(Bitmap bitmap, int orientation) {
 
 
@@ -227,24 +323,35 @@ public class ShowPictureActivity extends AppCompatActivity {
         finishWithResult();
     }
 
+    /**
+     * Called when the back button is pressed. It brings the flow back to MainActivity.
+     */
     private void finishWithResult() {
         Intent intent = new Intent();
         setResult(RESULT_OK, intent);
         finish();
     }
 
-
+    /**
+     * Called when the orientation of the screen changes. It needs to fill again the fields that are discarded
+     * due to rotation, in particular it sets the proper layout basing on the screen orientation, it sets again
+     * the imageView background to the picture, and adds again the buttons not to lose the information stored in them.
+     * Unfortunately, for the moment is the best i could to. Maybe it can be optimized.
+     * @param newConfig the new configuration of the changed mode activity.
+     */
     @Override
     public void onConfigurationChanged(Configuration newConfig){
         if (newConfig.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT) {
             setContentView(R.layout.activity_show_picture);
-            ImageView img  = (ImageView) findViewById(R.id.fullscreen_img);
+            img  = (ImageView) findViewById(R.id.fullscreen_img);
+            relativeLayout = (RelativeLayout) findViewById(R.id.activity_show_picture);
             img.setImageBitmap(bmp);
         }
         else if (newConfig.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
             setContentView(R.layout.activity_show_picture_land);
-            ImageView img  = (ImageView) findViewById(R.id.fullscreen_img);
+            img  = (ImageView) findViewById(R.id.fullscreen_img);
             img.setImageBitmap(bmp);
+            relativeLayout = (RelativeLayout) findViewById(R.id.activity_show_picture_land);
         }
         addButtons();
         super.onConfigurationChanged(newConfig);
@@ -263,4 +370,74 @@ public class ShowPictureActivity extends AppCompatActivity {
         t1.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId);
     }
 
+    /**
+     * Translated the text that has to be shown in the buttons. In particular, it calls the Translate APIs from google via an
+     * AsyncTask, it sets the buttons text to the (translated) result and updates the 'visionValues' string in order to be coherent
+     * when 'addButton()' method will be called again. The method is called for every button to translate the text inside it,
+     * so potentially we generate a lot of async tasks. But since they are very fast (litte job to to, the text of a button is very
+     * short), this can be a good trade-off.
+     * @param buttontag the tag of the button that called this method.
+     */
+    private void translateText(final String buttontag) {
+        final Button buttonToTranslate = (Button) relativeLayout.findViewWithTag(buttontag);
+        final String textToTranslate = buttonToTranslate==null? "":buttonToTranslate.getText().toString(); //you need to retrieve the text from main thread
+        new AsyncTask<Object, Integer, String>(){
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+            }
+
+            @Override
+            protected String doInBackground(Object... params) {
+                List<TranslationsResource> list= null;
+
+                final Translate translate = new Translate.Builder(
+                        AndroidHttp.newCompatibleTransport(), AndroidJsonFactory.getDefaultInstance(),
+                        new HttpRequestInitializer() {
+                            @Override
+                            public void initialize(HttpRequest httpRequest) throws IOException {
+                                Log.d("TRANSLATE", "Http requst: " + httpRequest);
+                            }
+                        })
+                        .setTranslateRequestInitializer(new TranslateRequestInitializer("AIzaSyD07diPeROl9YQQE-BLc7M9YLQCMQIKMQc"))
+                        .build();
+                try {
+                    //Set the language to the one selected by user. This resides in the string 'currentLanguage', that
+                    //has the form 'xx_YY', so getting the last two chars we get the language to pass to google trans.
+                    Translate.Translations.List request = translate.translations().list(Arrays.asList(
+                            //Pass in list of strings to be translated
+                            textToTranslate),
+                            //Target language
+                            currentLanguage.substring(currentLanguage.length() - 2));
+                    TranslationsListResponse tlr = request.execute();
+                    return tlr.getTranslations().get(0).getTranslatedText();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return "";
+            }
+
+            protected void onPostExecute(String result) {
+                //this is needed since when adding buttons on rotating screen we call again addButton(), that relies on
+                //visualValues string to fill the text of the buttons. Since we are translating it, we need to update it.
+                visionValues = visionValues + result+ ":";
+                //check this, since if rotating the view can be null
+                buttonToTranslate.setText(result);
+
+            }
+
+        }.execute();
+
+    }
+
+    /**
+     * Called when the language dialog is dismissed. It takes the language selected in orded to update the buttons and
+     * the 'textToSpeech' object.
+     * @param lang
+     */
+    @Override
+    public void onComplete(String lang) {
+        currentLanguage = lang;
+        changeLanguage(new Locale(lang));
+    }
 }

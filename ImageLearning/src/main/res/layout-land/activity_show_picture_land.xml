@@ -7,7 +7,6 @@
     android:fitsSystemWindows="true"
     android:background="@android:color/black"
     tools:context="com.google.sample.imagelearning.ShowPictureActivity">
-
     <ImageView
         android:padding="1dp"
         android:cropToPadding="true"
@@ -17,6 +16,12 @@
         android:background="@drawable/img_borded"
         android:contentDescription="@string/image_token"
         android:id="@+id/fullscreen_img"/>
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/change_language"
+        android:layout_alignBottom="@id/fullscreen_img"
+        android:layout_alignEnd="@id/fullscreen_img"/>
 
     <org.apmem.tools.layouts.FlowLayout
         android:layout_width="fill_parent"
