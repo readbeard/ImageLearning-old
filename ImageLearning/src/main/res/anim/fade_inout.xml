@@ -4,7 +4,7 @@
         android:fromAlpha="1.0"
         android:toAlpha="0.5"
         android:duration="300"
-        android:repeatCount="6"
+        android:repeatCount="infinite"
         android:repeatMode="reverse"
         />
 </set>

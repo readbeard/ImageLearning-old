@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -146,11 +147,15 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
             if(!isDouble && ! next.equals("")) {
                 final Button calculatedWordButton = new Button(this);
                 final Animation myAnim = AnimationUtils.loadAnimation(this, R.anim.fade_inout);
+
                 calculatedWordButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(!utteranceCompleted)
+                        System.out.println(utteranceCompleted);
+                        if(calculatedWordButton.getContentDescription()== null)
                             calculatedWordButton.startAnimation(myAnim);
+                        else
+                            calculatedWordButton.getAnimation().cancel();
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                             //needed to put the text of the button here. You cannot put 'next' since if you change
                             //the button's text, this onClick method won't see that change.
@@ -196,13 +201,41 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                 }
             }
         });
+        t1.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+            @Override
+            public void onStart(String utteranceId) {
+                Button curr;
+                for(int i = 0; i<buttonTotalNumber;i++){
+                    curr = (Button) relativeLayout.findViewWithTag("button_"+i);
+                    curr.setContentDescription(utteranceId);
+                    curr.getAnimation().cancel();
+                }
+                utteranceCompleted = true;
+            }
 
+            @Override
+            public void onDone(String utteranceId) {
+
+            }
+
+            @Override
+            public void onError(String utteranceId) {
+
+            }
+        });
+        //Backward compatibility...
         t1.setOnUtteranceCompletedListener(new TextToSpeech.OnUtteranceCompletedListener() {
             @Override
             public void onUtteranceCompleted(String utteranceId) {
+                Button curr;
+                for(int i = 0; i<buttonTotalNumber;i++){
+                    curr = (Button) relativeLayout.findViewWithTag("button_"+i);
+                    curr.setAnimation(null);
+                }
                 utteranceCompleted = true;
             }
         });
+
     }
 
     /**
