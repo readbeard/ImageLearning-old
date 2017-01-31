@@ -22,14 +22,18 @@
         android:id="@+id/change_language"
         android:layout_alignBottom="@id/fullscreen_img"
         android:layout_alignEnd="@id/fullscreen_img"/>
-
-    <org.apmem.tools.layouts.FlowLayout
-        android:layout_width="fill_parent"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:id="@+id/button_scrollview"
         android:layout_toEndOf="@id/fullscreen_img"
-        android:id="@+id/scrollView_linearLayout"
-        android:orientation="horizontal"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content">
 
+        <org.apmem.tools.layouts.FlowLayout
+            android:layout_width="fill_parent"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:id="@+id/buttons_flowlayout"
+            android:orientation="horizontal"
+            android:layout_height="wrap_content" />
+    </ScrollView>
 </RelativeLayout>

@@ -93,7 +93,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
 
         //scrollView = (ScrollView) findViewById(R.id.button_scrollview);
         //scrollViewParams = (RelativeLayout.LayoutParams) scrollView.getLayoutParams();
-        scrollViewLinearLayout = (FlowLayout) findViewById(R.id.scrollView_linearLayout);
+        scrollViewLinearLayout = (FlowLayout) findViewById(R.id.buttons_flowlayout);
         img = (ImageView) findViewById(R.id.fullscreen_img);
 
         absolutePath = savedInstanceState == null? getIntent().getStringExtra("IMAGE"): savedInstanceState.getString("path");
@@ -134,7 +134,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
     private void addButtons() {
         ProgressDialog temp = new ProgressDialog(this);
         temp.setMessage("WAIT");
-        scrollViewLinearLayout = (FlowLayout) findViewById(R.id.scrollView_linearLayout);
+        scrollViewLinearLayout = (FlowLayout) findViewById(R.id.buttons_flowlayout);
         changeLanguageButton = (ImageButton) findViewById(R.id.change_language);
         Scanner scanner = new Scanner(visionValues);
         scanner.useDelimiter("I found these things:|\\W|\\n|\\s ");
