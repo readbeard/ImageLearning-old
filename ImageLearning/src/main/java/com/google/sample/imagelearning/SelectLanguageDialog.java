@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 public class SelectLanguageDialog extends DialogFragment{
 
-    String language = "";
+    String language = "en_GB";
     private OnCompleteListener mListener;
     private int langCode;
 
@@ -35,6 +35,8 @@ public class SelectLanguageDialog extends DialogFragment{
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         final View v = inflater.inflate(R.layout.language_select, null);
+
+        builder.setIcon(R.mipmap.ic_language_black_24dp);
         builder.setCancelable(false);
 
         builder.setView(v);
@@ -53,7 +55,7 @@ public class SelectLanguageDialog extends DialogFragment{
                 TextView selectedLanguageTV = (TextView) view.findViewById(R.id.language_textview);
                 String selectedLanguage = selectedLanguageTV.getText().toString();
 
-                String locale = "en_UK";
+                String locale = "en_GB";
                 if(selectedLanguage.equals("English"))
                     locale = "it_IT";
                 if(selectedLanguage.equals("Italiano"))

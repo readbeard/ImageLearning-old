@@ -60,7 +60,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
     private Bitmap bmp;
     private String absolutePath;
     private String visionValues;
-    private FlowLayout scrollViewLinearLayout;
+    private FlowLayout scrollViewFlowLayout;
 
     private TextToSpeech t1;
     private Pattern doubleRegex;
@@ -68,7 +68,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
     private boolean utteranceCompleted;
 
     private int buttonTotalNumber;
-    private String currentLanguage="en_UK";
+    private String currentLanguage="en_GB";
     private ImageButton changeLanguageButton;
 
     /**
@@ -94,7 +94,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
 
         //scrollView = (ScrollView) findViewById(R.id.button_scrollview);
         //scrollViewParams = (RelativeLayout.LayoutParams) scrollView.getLayoutParams();
-        scrollViewLinearLayout = (FlowLayout) findViewById(R.id.buttons_flowlayout);
+        scrollViewFlowLayout = (FlowLayout) findViewById(R.id.buttons_flowlayout);
         img = (ImageView) findViewById(R.id.fullscreen_img);
 
         absolutePath = savedInstanceState == null? getIntent().getStringExtra("IMAGE"): savedInstanceState.getString("path");
@@ -135,7 +135,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
     private void addButtons() {
         ProgressDialog temp = new ProgressDialog(this);
         temp.setMessage("WAIT");
-        scrollViewLinearLayout = (FlowLayout) findViewById(R.id.buttons_flowlayout);
+        scrollViewFlowLayout = (FlowLayout) findViewById(R.id.buttons_flowlayout);
         changeLanguageButton = (ImageButton) findViewById(R.id.change_language);
         Scanner scanner = new Scanner(visionValues);
         scanner.useDelimiter("I found these things:|\\W|\\n|\\s ");
@@ -147,6 +147,9 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
             if(!isDouble && ! next.equals("")) {
                 final Button calculatedWordButton = new Button(this);
                 final Animation myAnim = AnimationUtils.loadAnimation(this, R.anim.fade_inout);
+
+
+                calculatedWordButton.setCompoundDrawablesWithIntrinsicBounds(R.mipmap.ic_play_circle_outline_black_24dp,0,0,0);
 
                 calculatedWordButton.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -169,7 +172,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                 calculatedWordButton.setLayoutParams(new ActionBar.LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT));
                 calculatedWordButton.setText(next);
                 calculatedWordButton.setTag("button_"+i);
-                scrollViewLinearLayout.addView(calculatedWordButton);
+                scrollViewFlowLayout.addView(calculatedWordButton);
                 i++;
             }
             buttonTotalNumber = i;
@@ -180,6 +183,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
             public void onClick(View v) {
                 SelectLanguageDialog dialog = new SelectLanguageDialog();
                 dialog.setInitaliiySelectedLang(currentLanguage);
+
                 dialog.show(getFragmentManager(),"Language dialog");
             }
         });
@@ -441,8 +445,10 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                     Translate.Translations.List request = translate.translations().list(Arrays.asList(
                             //Pass in list of strings to be translated
                             textToTranslate),
-                            //Target language
-                            currentLanguage.substring(currentLanguage.length() - 2));
+                            //Target language: since the string currentLanguage
+                            // is in the form 'xx_XX', where xx is the specific language in
+                            // short, taking the first two characters of the string will be sufficient to Google Translate
+                            currentLanguage.substring(0,2));
                     TranslationsListResponse tlr = request.execute();
                     return tlr.getTranslations().get(0).getTranslatedText();
                 } catch (IOException e) {

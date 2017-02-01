@@ -29,7 +29,7 @@ public class CustomAdapter  extends BaseAdapter{
         inflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
          langs = new String[]{"English","Italiano", "French", "Espanol", "German"};
         //TODO: change this icons with proper state flag.
-        langIconsIDs = new int[]{R.mipmap.ic_launcher,R.mipmap.ic_launcher,R.mipmap.ic_launcher,R.mipmap.ic_launcher,R.mipmap.ic_launcher};
+        langIconsIDs = new int[]{R.drawable.united_kingdom,R.drawable.italy,R.drawable.france,R.drawable.spain,R.drawable.germany};
         selectedIndex = -1;
     }
 
