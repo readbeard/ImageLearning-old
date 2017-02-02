@@ -62,7 +62,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String CLOUD_VISION_API_KEY = " ";
+    private static final String CLOUD_VISION_API_KEY = "";
     public static final String FILE_NAME = "temp.jpg";
     private static final String ANDROID_CERT_HEADER = "X-Android-Cert";
     private static final String ANDROID_PACKAGE_HEADER = "X-Android-Package";
@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
         }else if(requestCode == SHOW_PICTURE_ACTIVITY && resultCode == RESULT_OK){
             startCamera();
         }else if(requestCode == CAMERA_IMAGE_REQUEST && resultCode == RESULT_CANCELED){
-            this.finish();
+            startCamera();
         }
     }
 
