@@ -141,11 +141,11 @@ public class MainActivity extends AppCompatActivity {
                                 MediaStore.Images.Media.getBitmap(getContentResolver(), uri),
                                 1200);
 
-                //callCloudVision(bitmap);
-                Intent showImageFullscreen = new Intent(MainActivity.this,ShowPictureActivity.class);
+                callCloudVision(bitmap);
+                /*Intent showImageFullscreen = new Intent(MainActivity.this,ShowPictureActivity.class);
                 showImageFullscreen.putExtra("IMAGE",getCameraFile().getAbsolutePath());
                 showImageFullscreen.putExtra("VALUES"," THE :0.987 : QUICK :0.876: BROWN :0.764 : FOX :0.654: JUMPS :0.976: OVER :0.324: THE:0.496 : LAZY : DOG");
-                startActivityForResult(showImageFullscreen,SHOW_PICTURE_ACTIVITY);
+                startActivityForResult(showImageFullscreen,SHOW_PICTURE_ACTIVITY);*/
 
             } catch (IOException e) {
                 Log.d(TAG, "Image picking failed because " + e.getMessage());

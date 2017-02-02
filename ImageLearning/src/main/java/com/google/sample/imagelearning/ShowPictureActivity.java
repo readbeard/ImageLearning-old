@@ -141,14 +141,19 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                 bc.setVisibility(View.VISIBLE);
         }
 
-        // the labels that should be drawn on the XAxis
+        // the labels that should be drawn on the XAxis. If the word has more than 3 characters, cut it and put
+        // it as label, otherwise put the entire
 
         IAxisValueFormatter formatter = new IAxisValueFormatter() {
 
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
                 String res = visionWords.get((int)value);
-                return res.substring(0,res.length()-2)+".";
+                try{
+                    return res.substring(0,5)+".";
+                }catch (Exception e){
+                    return res;
+                }
             }
 
 
@@ -242,7 +247,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                 calculatedWordButton.setTag("button_"+i);
                 calculatedWordButton.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.MULTIPLY);
                 scrollViewFlowLayout.addView(calculatedWordButton);
-                visionWords.add(graphEntryCount,next);
+                visionWords.add(next);
                 i++;
             }
             buttonTotalNumber = i;

@@ -10,12 +10,15 @@
     tools:context="com.google.sample.imagelearning.MainActivity">
 
     <ImageView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:id="@+id/mainactivity_background_imageview"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_centerInParent="true"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:adjustViewBounds="true"
-        android:scaleType="fitCenter">
+        android:scaleType="centerCrop">
     </ImageView>
 
 
