@@ -3,15 +3,20 @@ package com.google.sample.imagelearning;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -22,6 +27,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 
@@ -70,9 +76,6 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
     private FlowLayout scrollViewFlowLayout;
 
     private TextToSpeech t1;
-    private Pattern doubleRegex;
-
-    private boolean utteranceCompleted;
 
     private int buttonTotalNumber;
     private String currentLanguage="en_GB";
@@ -203,11 +206,9 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
         int graphEntryCount =0; //put a new Entry in the graph at the right position
         while (scanner.hasNext()) {
             final String next = scanner.next();
-            System.out.println(next);
-            //if i'm reading an interval of confidence, add a new Entry to the graph. If an element is present in a position
+            //if reading an interval of confidence, add a new Entry to the graph. If an element is present in a position
             //don't add  it (it means that it was previously already added).
             if(next.startsWith("0") && entries.size() <= graphEntryCount) {
-                System.out.println(Float.parseFloat(next));
                 entries.add(new BarEntry(graphEntryCount, Float.parseFloat(next)));
                 graphEntryCount++;
             }
@@ -233,11 +234,15 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                     }
                 });
 
+                //FlowLayout.LayoutParams params =  new FlowLayout.LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT);
                 calculatedWordButton.setLayoutParams(new ActionBar.LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT));
                 calculatedWordButton.setText(next);
+                calculatedWordButton.setCompoundDrawablesWithIntrinsicBounds(0,0,R.mipmap.ic_volume_up_black_24dp,0);
+                calculatedWordButton.setTextColor(getColor(R.color.colorAccent));
                 calculatedWordButton.setTag("button_"+i);
+                calculatedWordButton.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.MULTIPLY);
                 scrollViewFlowLayout.addView(calculatedWordButton);
-                visionWords.add(next);
+                visionWords.add(graphEntryCount,next);
                 i++;
             }
             buttonTotalNumber = i;
@@ -253,7 +258,6 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
             dialog.setRetainInstance(true);
             }
         });
-        System.out.println(entries);
         initializeGraph();
     }
 
@@ -280,7 +284,6 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                     curr.setContentDescription(utteranceId);
                     curr.getAnimation().cancel();
                 }
-                utteranceCompleted = true;
             }
 
             @Override
@@ -302,7 +305,6 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                     curr = (Button) relativeLayout.findViewWithTag("button_"+i);
                     curr.setAnimation(null);
                 }
-                utteranceCompleted = true;
             }
         });
 
@@ -316,7 +318,6 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
         if(t1 !=null){
             t1.stop();
             t1.shutdown();
-            utteranceCompleted = false;
         }
         super.onPause();
     }
@@ -341,7 +342,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                     MainActivity.scaleBitmapDown(
                             MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.fromFile(new File(absolutePath))),
                             12000);*/
-            bmp = rotateBitmap(bmp,calculateImageOrientation(absolutePath));
+            //bmp = rotateBitmap(bmp,calculateImageOrientation(absolutePath));
             img.setImageBitmap(bmp);
             fis.close();
         } catch (Exception e) {
@@ -481,7 +482,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
      * Translated the text that has to be shown in the buttons. In particular, it calls the Translate APIs from google via an
      * AsyncTask, it sets the buttons text to the (translated) result and updates the 'visionValues' string in order to be coherent
      * when 'addButton()' method will be called again. The method is called for every button to translate the text inside it,
-     * so potentially we generate a lot of async tasks. But since they are very fast (litte job to to, the text of a button is very
+     * so potentially we generate a lot of async tasks. But since they are very fast (litte job to do, the text of a button is very
      * short), this can be a good trade-off.
      * @param buttontag the tag of the button that called this method.
      */
@@ -532,7 +533,6 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                 visionValues = visionValues + result+ ":";
                 //check this, since if rotating the view can be null
                 buttonToTranslate.setText(result);
-
             }
 
         }.execute();

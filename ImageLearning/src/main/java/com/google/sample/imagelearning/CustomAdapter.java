@@ -7,6 +7,7 @@ package com.google.sample.imagelearning;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -92,7 +93,7 @@ public class CustomAdapter  extends BaseAdapter{
 
         if(selectedIndex!= -1 && position == selectedIndex)
         {
-            holder.tv.setBackgroundColor(Color.GREEN);
+            holder.tv.setBackgroundColor(ContextCompat.getColor(vi.getContext(),R.color.colorAccent));
         }
         else
         {

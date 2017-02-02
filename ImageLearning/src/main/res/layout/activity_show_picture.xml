@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:background="@color/white"
     tools:context="com.google.sample.imagelearning.ShowPictureActivity">
     <ImageView
         android:padding="1dp"
@@ -33,24 +34,22 @@
         android:padding="1dp"
         android:background="@color/colorAccent"/>
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:id="@+id/button_scrollview"
-        android:layout_below="@id/divisor"
-        android:layout_height="wrap_content">
+
 
         <org.apmem.tools.layouts.FlowLayout
             android:layout_width="fill_parent"
             android:id="@+id/buttons_flowlayout"
-            android:background="@android:color/white"
+            android:layout_below="@id/divisor"
+            android:gravity="center"
+            android:layout_centerInParent="true"
+            android:layout_centerVertical="true"
             android:orientation="horizontal"
             android:layout_height="wrap_content" />
 
-    </ScrollView>
 
     <com.github.mikephil.charting.charts.BarChart
         android:id="@+id/chart"
-        android:layout_below="@id/button_scrollview"
+        android:layout_below="@id/buttons_flowlayout"
         android:layout_width="match_parent"
         android:visibility="gone"
         android:layout_height="match_parent" />
