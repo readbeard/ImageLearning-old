@@ -1,7 +1,6 @@
 package com.google.sample.imagelearning;
 
 import android.annotation.TargetApi;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -9,10 +8,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.support.v7.app.ActionBar;
@@ -35,9 +32,6 @@ import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -130,7 +124,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
     /**
      * Initilizes the graph showing statistics about the calculated words. In particular, the graph is shown only in the mode that
      * best fits it, that is: when an image is too small in a particolar orientation mode, it means that some space is left unused,
-     * so the graph fills that space.
+     * so the graph fills that space. X-axis are
      */
     private void initializeGraph() {
         int orientation = getResources().getConfiguration().orientation;
@@ -150,7 +144,8 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
 
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
-                return visionWords.get((int) value).substring(0,5)+".";
+                String res = visionWords.get((int)value);
+                return res.substring(0,res.length()-2)+".";
             }
 
 
@@ -159,6 +154,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
         XAxis xAxis = bc.getXAxis();
         xAxis.setGranularity(1f); // minimum axis-step (interval) is 1
         xAxis.setValueFormatter(formatter);
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
 
 
         BarDataSet dataSet = new BarDataSet(entries,"results interval of confidence");
@@ -202,21 +198,21 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
         Scanner scanner = new Scanner(visionValues);
         scanner.useDelimiter(":|\\n|\\s ");
 
-        entries.clear();
-        visionWords.clear();
+
         int i = 0;
         int graphEntryCount =0; //put a new Entry in the graph at the right position
         while (scanner.hasNext()) {
             final String next = scanner.next();
             System.out.println(next);
-            //if i'm reading an interval of confidence, add a new Entry to the graph...
-            if(next.startsWith("0")) {
+            //if i'm reading an interval of confidence, add a new Entry to the graph. If an element is present in a position
+            //don't add  it (it means that it was previously already added).
+            if(next.startsWith("0") && entries.size() <= graphEntryCount) {
                 System.out.println(Float.parseFloat(next));
                 entries.add(new BarEntry(graphEntryCount, Float.parseFloat(next)));
                 graphEntryCount++;
             }
 
-            else{
+            if(!next.startsWith("0")){
                 final Button calculatedWordButton = new Button(this);
                 final Animation myAnim = AnimationUtils.loadAnimation(this, R.anim.fade_inout);
 
@@ -248,12 +244,13 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
         }
 
         changeLanguageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SelectLanguageDialog dialog = new SelectLanguageDialog();
-                dialog.setInitaliiySelectedLang(currentLanguage);
+        @Override
+        public void onClick(View v) {
+            SelectLanguageDialog dialog = new SelectLanguageDialog();
+            dialog.setInitiallySelectedLang(currentLanguage);
 
-                dialog.show(getFragmentManager(),"Language dialog");
+            dialog.show(getFragmentManager(),"Language dialog");
+            dialog.setRetainInstance(true);
             }
         });
         System.out.println(entries);

@@ -55,9 +55,11 @@ public class SelectLanguageDialog extends DialogFragment{
                 TextView selectedLanguageTV = (TextView) view.findViewById(R.id.language_textview);
                 String selectedLanguage = selectedLanguageTV.getText().toString();
 
+                System.out.println(selectedLanguage);
+
                 String locale = "en_GB";
                 if(selectedLanguage.equals("English"))
-                    locale = "it_IT";
+                    locale = "en_GB";
                 if(selectedLanguage.equals("Italiano"))
                     locale = "it_IT";
                 else if(selectedLanguage.equals("French"))
@@ -124,7 +126,7 @@ public class SelectLanguageDialog extends DialogFragment{
         public abstract void onComplete(String time);
     }
 
-    public void setInitaliiySelectedLang(String language){
+    public void setInitiallySelectedLang(String language){
         if(language.contains("EN"))
             this.langCode = 0;
         if(language.contains("IT"))
