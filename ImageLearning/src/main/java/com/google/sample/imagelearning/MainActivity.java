@@ -62,7 +62,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String CLOUD_VISION_API_KEY = "  ";
+    private static final String CLOUD_VISION_API_KEY = " ";
     public static final String FILE_NAME = "temp.jpg";
     private static final String ANDROID_CERT_HEADER = "X-Android-Cert";
     private static final String ANDROID_PACKAGE_HEADER = "X-Android-Package";
@@ -141,11 +141,11 @@ public class MainActivity extends AppCompatActivity {
                                 MediaStore.Images.Media.getBitmap(getContentResolver(), uri),
                                 1200);
 
-                //callCloudVision(bitmap);
-                Intent showImageFullscreen = new Intent(MainActivity.this,ShowPictureActivity.class);
+                callCloudVision(bitmap);
+                /*Intent showImageFullscreen = new Intent(MainActivity.this,ShowPictureActivity.class);
                 showImageFullscreen.putExtra("IMAGE",getCameraFile().getAbsolutePath());
-                showImageFullscreen.putExtra("VALUES"," THE : 0.987 : QUICK : 0.876: BROWN : FOX : JUMPS : OVER : THE : LAZY : DOG");
-                startActivityForResult(showImageFullscreen,SHOW_PICTURE_ACTIVITY);
+                showImageFullscreen.putExtra("VALUES"," THE : 0.987 : QUICK : 0.876: BROWN : 0.764 : FOX : 0.654: JUMPS : 0.976: OVER : 0.324: THE: 0.496 : LAZY : DOG");
+                startActivityForResult(showImageFullscreen,SHOW_PICTURE_ACTIVITY);*/
 
             } catch (IOException e) {
                 Log.d(TAG, "Image picking failed because " + e.getMessage());
@@ -228,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
                         annotateImageRequest.setFeatures(new ArrayList<Feature>() {{
                             Feature labelDetection = new Feature();
                             labelDetection.setType("LABEL_DETECTION");
-                            labelDetection.setMaxResults(10);
+                            labelDetection.setMaxResults(7);
                             add(labelDetection);
                         }});
 
@@ -256,8 +256,7 @@ public class MainActivity extends AppCompatActivity {
 
             protected void onPostExecute(String result) {
                 mProgressDialog.dismiss();
-                //System.out.println(result);
-                //Toast.makeText(MainActivity.this,result,Toast.LENGTH_LONG).show();
+
                 Intent showImageFullscreen = new Intent(MainActivity.this,ShowPictureActivity.class);
                 showImageFullscreen.putExtra("IMAGE",getCameraFile().getAbsolutePath());
                 showImageFullscreen.putExtra("VALUES",result);
@@ -284,11 +283,12 @@ public class MainActivity extends AppCompatActivity {
             resizedHeight = maxDimension;
             resizedWidth = maxDimension;
         }
+
         return Bitmap.createScaledBitmap(bitmap, resizedWidth, resizedHeight, false);
     }
 
     private String convertResponseToString(BatchAnnotateImagesResponse response) {
-        String message = "I found these things:\n\n";
+        String message = "";
 
         List<EntityAnnotation> labels = response.getResponses().get(0).getLabelAnnotations();
         if (labels != null) {

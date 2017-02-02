@@ -45,7 +45,15 @@
             android:background="@android:color/white"
             android:orientation="horizontal"
             android:layout_height="wrap_content" />
+
     </ScrollView>
+
+    <com.github.mikephil.charting.charts.BarChart
+        android:id="@+id/chart"
+        android:layout_below="@id/button_scrollview"
+        android:layout_width="match_parent"
+        android:visibility="gone"
+        android:layout_height="match_parent" />
 
 
 </RelativeLayout>

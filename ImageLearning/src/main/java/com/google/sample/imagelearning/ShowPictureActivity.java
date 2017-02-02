@@ -28,6 +28,18 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.api.client.http.HttpRequest;
@@ -44,6 +56,7 @@ import org.apmem.tools.layouts.FlowLayout;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -70,6 +83,9 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
     private int buttonTotalNumber;
     private String currentLanguage="en_GB";
     private ImageButton changeLanguageButton;
+    private BarChart bc;
+    private List<BarEntry> entries = new ArrayList<>();
+    private ArrayList<String> visionWords = new ArrayList<>();
 
     /**
      * Called on activity create. It sets the proper layout, considering the current orientation, and sets up the view that are
@@ -85,11 +101,12 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
         if(orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
             setContentView(R.layout.activity_show_picture);
             relativeLayout = (RelativeLayout) findViewById(R.id.activity_show_picture);
+            bc = (BarChart) findViewById(R.id.chart);
         }
         else {
             setContentView(R.layout.activity_show_picture_land);
             relativeLayout = (RelativeLayout) findViewById(R.id.activity_show_picture_land);
-
+            bc = (BarChart) findViewById(R.id.chart_land);
         }
 
         //scrollView = (ScrollView) findViewById(R.id.button_scrollview);
@@ -99,15 +116,60 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
 
         absolutePath = savedInstanceState == null? getIntent().getStringExtra("IMAGE"): savedInstanceState.getString("path");
         visionValues = getIntent().getStringExtra("VALUES");
-        doubleRegex = Pattern.compile(getString(R.string.double_regex));
 
         changeLanguageButton = (ImageButton) findViewById(R.id.change_language);
 
-        addButtons();
+
 
         setImageViewBitmap(absolutePath);
+        addButtons();
 
 
+    }
+
+    /**
+     * Initilizes the graph showing statistics about the calculated words. In particular, the graph is shown only in the mode that
+     * best fits it, that is: when an image is too small in a particolar orientation mode, it means that some space is left unused,
+     * so the graph fills that space.
+     */
+    private void initializeGraph() {
+        int orientation = getResources().getConfiguration().orientation;
+
+        if(orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+            if(bmp.getWidth() > bmp.getHeight())
+                bc.setVisibility(View.VISIBLE);
+        }
+        else {
+            if(bmp.getWidth() < bmp.getHeight())
+                bc.setVisibility(View.VISIBLE);
+        }
+
+        // the labels that should be drawn on the XAxis
+
+        IAxisValueFormatter formatter = new IAxisValueFormatter() {
+
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+                return visionWords.get((int) value).substring(0,5)+".";
+            }
+
+
+        };
+
+        XAxis xAxis = bc.getXAxis();
+        xAxis.setGranularity(1f); // minimum axis-step (interval) is 1
+        xAxis.setValueFormatter(formatter);
+
+
+        BarDataSet dataSet = new BarDataSet(entries,"results interval of confidence");
+        BarData lineData = new BarData(dataSet);
+        bc.setData(lineData);
+        dataSet.setColors(ColorTemplate.JOYFUL_COLORS);
+        Description barChartDesc = new Description();
+        barChartDesc.setText("");
+        bc.setDescription(barChartDesc);
+        bc.setFitBars(true);
+        bc.invalidate();
     }
 
     /**
@@ -131,30 +193,36 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
      * Adds the buttton dinamically to the FlowLayout next to the imageView containing the picture. It parses the 'visionValues'
      * string, that is the result taken from Google Vision APIs in the previous activity. Note that, if language is set, this
      * string is updated with the translated version of it, since this method is called every time the language has to be changed.
+     * Adds also entries to the chart, basing on the interval of confidence values related to words, that Google sends within the
+     * JSON
      */
     private void addButtons() {
-        ProgressDialog temp = new ProgressDialog(this);
-        temp.setMessage("WAIT");
         scrollViewFlowLayout = (FlowLayout) findViewById(R.id.buttons_flowlayout);
         changeLanguageButton = (ImageButton) findViewById(R.id.change_language);
         Scanner scanner = new Scanner(visionValues);
-        scanner.useDelimiter("I found these things:|\\W|\\n|\\s ");
+        scanner.useDelimiter(":|\\n|\\s ");
+
+        entries.clear();
+        visionWords.clear();
         int i = 0;
+        int graphEntryCount =0; //put a new Entry in the graph at the right position
         while (scanner.hasNext()) {
             final String next = scanner.next();
-            boolean isDouble = doubleRegex.matcher(next).matches();
+            System.out.println(next);
+            //if i'm reading an interval of confidence, add a new Entry to the graph...
+            if(next.startsWith("0")) {
+                System.out.println(Float.parseFloat(next));
+                entries.add(new BarEntry(graphEntryCount, Float.parseFloat(next)));
+                graphEntryCount++;
+            }
 
-            if(!isDouble && ! next.equals("")) {
+            else{
                 final Button calculatedWordButton = new Button(this);
                 final Animation myAnim = AnimationUtils.loadAnimation(this, R.anim.fade_inout);
-
-
-                calculatedWordButton.setCompoundDrawablesWithIntrinsicBounds(R.mipmap.ic_play_circle_outline_black_24dp,0,0,0);
 
                 calculatedWordButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        System.out.println(utteranceCompleted);
                         if(calculatedWordButton.getContentDescription()== null)
                             calculatedWordButton.startAnimation(myAnim);
                         else
@@ -173,6 +241,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                 calculatedWordButton.setText(next);
                 calculatedWordButton.setTag("button_"+i);
                 scrollViewFlowLayout.addView(calculatedWordButton);
+                visionWords.add(next);
                 i++;
             }
             buttonTotalNumber = i;
@@ -187,8 +256,8 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                 dialog.show(getFragmentManager(),"Language dialog");
             }
         });
-
-        temp.dismiss();
+        System.out.println(entries);
+        initializeGraph();
     }
 
     /**
@@ -271,11 +340,11 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
         try {
             FileInputStream fis = new FileInputStream(new File(absolutePath));
             bmp = BitmapFactory.decodeStream(fis);
-            bmp =
+            /*bmp =
                     MainActivity.scaleBitmapDown(
                             MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.fromFile(new File(absolutePath))),
-                            1200);
-            rotateBitmap(bmp,calculateImageOrientation(absolutePath));
+                            12000);*/
+            bmp = rotateBitmap(bmp,calculateImageOrientation(absolutePath));
             img.setImageBitmap(bmp);
             fis.close();
         } catch (Exception e) {
@@ -383,6 +452,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
             setContentView(R.layout.activity_show_picture);
             img  = (ImageView) findViewById(R.id.fullscreen_img);
             relativeLayout = (RelativeLayout) findViewById(R.id.activity_show_picture);
+            bc = (BarChart) findViewById(R.id.chart);
             img.setImageBitmap(bmp);
         }
         else if (newConfig.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
@@ -390,7 +460,9 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
             img  = (ImageView) findViewById(R.id.fullscreen_img);
             img.setImageBitmap(bmp);
             relativeLayout = (RelativeLayout) findViewById(R.id.activity_show_picture_land);
+            bc = (BarChart) findViewById(R.id.chart_land);
         }
+        initializeGraph();
         addButtons();
         super.onConfigurationChanged(newConfig);
     }
