@@ -75,17 +75,7 @@ public class SelectLanguageDialog extends DialogFragment{
                 //tell to the CustomAdapter the selected view in order to change its background. See Customadapter.getView()
                 //for mor details
                 adapter.setSelectedIndex(position);
-            }
-        });
-
-        builder.setMessage("").setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
                 mListener.onComplete(getLanguage());
-            }
-        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
                 dismiss();
             }
         });

@@ -589,5 +589,6 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
         currentLanguage = lang;
         changeLanguage(new Locale(lang));
         disableVirtualButtons();
+
     }
 }
