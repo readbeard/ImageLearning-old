@@ -36,6 +36,7 @@ public class SelectLanguageDialog extends DialogFragment{
         LayoutInflater inflater = getActivity().getLayoutInflater();
         final View v = inflater.inflate(R.layout.language_select, null);
 
+
         builder.setIcon(R.mipmap.ic_language_black_24dp);
         builder.setCancelable(false);
 

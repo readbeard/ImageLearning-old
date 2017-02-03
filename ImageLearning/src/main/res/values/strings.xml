@@ -16,4 +16,6 @@
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="image_token">The image you took</string>
     <string name="double_regex">[\\x00-\\x20]*[+-]?(((((\\p{Digit}+)(\\.)?((\\p{Digit}+)?)([eE][+-]?(\\p{Digit}+))?)|(\\.((\\p{Digit}+))([eE][+-]?(\\p{Digit}+))?)|(((0[xX](\\p{XDigit}+)(\\.)?)|(0[xX](\\p{XDigit}+)?(\\.)(\\p{XDigit}+)))[pP][+-]?(\\p{Digit}+)))[fFdD]?))[\\x00-\\x20]*</string>
+    <string name="cloud_vision_apikey">AIzaSyD07diPeROl9YQQE-BLc7M9YLQCMQIKMQc</string>
+    <string name="visionservice_apikey">cb28cd3844624c0d907ac8b1d5772a76</string>
 </resources>

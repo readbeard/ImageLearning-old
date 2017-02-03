@@ -10,16 +10,20 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.PorterDuff;
+import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -107,6 +111,8 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
             bc = (BarChart) findViewById(R.id.chart_land);
         }
 
+        disableVirtualButtons();
+
         //scrollView = (ScrollView) findViewById(R.id.button_scrollview);
         //scrollViewParams = (RelativeLayout.LayoutParams) scrollView.getLayoutParams();
         scrollViewFlowLayout = (FlowLayout) findViewById(R.id.buttons_flowlayout);
@@ -126,22 +132,17 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
 
     }
 
+    private void disableVirtualButtons() {
+        //if there are virtual buttons, don't show them since they would waste some space and make some buttons invisible
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+    }
+
     /**
      * Initilizes the graph showing statistics about the calculated words. In particular, the graph is shown only in the mode that
      * best fits it, that is: when an image is too small in a particolar orientation mode, it means that some space is left unused,
      * so the graph fills that space. X-axis are
      */
     private void initializeGraph() {
-        int orientation = getResources().getConfiguration().orientation;
-
-        if(orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
-            if(bmp.getWidth() > bmp.getHeight())
-                bc.setVisibility(View.VISIBLE);
-        }
-        else {
-            if(bmp.getWidth() < bmp.getHeight())
-                bc.setVisibility(View.VISIBLE);
-        }
 
         // the labels that should be drawn on the XAxis. If the word has more than 3 characters, cut it and put
         // it as label, otherwise put the entire
@@ -247,12 +248,12 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                 calculatedWordButton.setCompoundDrawablesWithIntrinsicBounds(0,0,R.mipmap.ic_volume_up_black_24dp,0);
                 calculatedWordButton.setTextColor(getColor(R.color.colorAccent));
                 calculatedWordButton.setTag("button_"+i);
-                if(matches.contains(next)) {
+/*                if(matches.contains(next)) {
                     calculatedWordButton.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.light_green), PorterDuff.Mode.MULTIPLY);
 
                 }else {
                     calculatedWordButton.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.MULTIPLY);
-                }
+                }*/
                 scrollViewFlowLayout.addView(calculatedWordButton);
                 visionWords.add(next);
                 i++;
@@ -353,15 +354,42 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
             /*bmp =
                     MainActivity.scaleBitmapDown(
                             MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.fromFile(new File(absolutePath))),
-                            12000);*/
+                            120);*/
             //bmp = rotateBitmap(bmp,calculateImageOrientation(absolutePath));
+            DisplayMetrics display = new DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getMetrics(display);
+            int screenWidth = display.widthPixels;
+            int  screenHeight = display.heightPixels;
+
+            if(getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+                bmp = getResizedBitmap(bmp, screenWidth, screenHeight / 2);
+                img.setMaxHeight(screenHeight/2);
+                img.setMinimumHeight(screenHeight/2);
+            }
+            else
+                bmp = getResizedBitmap(bmp,screenWidth/2,screenHeight);
+
             img.setImageBitmap(bmp);
             fis.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+    public Bitmap getResizedBitmap(Bitmap image, int maxWidth,int maxHeight) {
+        int width = image.getWidth();
+        int height = image.getHeight();
 
+        float bitmapRatio = (float) width / (float) height;
+        if (bitmapRatio > 1) {
+            width = maxWidth;
+            height = (int) (width / bitmapRatio);
+        } else {
+            height = maxHeight;
+            width = (int) (height * bitmapRatio);
+        }
+
+        return Bitmap.createScaledBitmap(image, width, height, true);
+    }
     /**
      * Computes the best orientation for the picture taken. Returns the orientation that has to be sent to 'rotateBitmap' method.
      * @param path the path of the picture taken
@@ -463,15 +491,16 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
             img  = (ImageView) findViewById(R.id.fullscreen_img);
             relativeLayout = (RelativeLayout) findViewById(R.id.activity_show_picture);
             bc = (BarChart) findViewById(R.id.chart);
-            img.setImageBitmap(bmp);
+
         }
         else if (newConfig.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
             setContentView(R.layout.activity_show_picture_land);
             img  = (ImageView) findViewById(R.id.fullscreen_img);
-            img.setImageBitmap(bmp);
             relativeLayout = (RelativeLayout) findViewById(R.id.activity_show_picture_land);
             bc = (BarChart) findViewById(R.id.chart_land);
         }
+        setImageViewBitmap(absolutePath);
+        disableVirtualButtons();
         initializeGraph();
         addButtons();
         super.onConfigurationChanged(newConfig);
@@ -560,5 +589,6 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
     public void onComplete(String lang) {
         currentLanguage = lang;
         changeLanguage(new Locale(lang));
+        disableVirtualButtons();
     }
 }

@@ -61,8 +61,8 @@ import java.util.List;
 import java.util.Scanner;
 
 public class MainActivity extends AppCompatActivity {
-    private final String CLOUD_VISION_API_KEY = getString(R.string.cloud_vision_apikey);
-    private java.lang.String VISIONSERVICE_API_KEY = getString(R.string.visionservice_apikey);
+    private String CLOUD_VISION_API_KEY;
+    private java.lang.String VISIONSERVICE_API_KEY;
     public static final String FILE_NAME = "temp.jpg";
     private static final String ANDROID_CERT_HEADER = "X-Android-Cert";
     private static final String ANDROID_PACKAGE_HEADER = "X-Android-Package";
@@ -82,6 +82,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        CLOUD_VISION_API_KEY = getString(R.string.cloud_vision_apikey);
+        VISIONSERVICE_API_KEY = getString(R.string.visionservice_apikey);
 
         mainActivityLayout = (RelativeLayout) findViewById(R.id.mainactivity_layout);
         mainActivityImageView = (ImageView) findViewById(R.id.mainactivity_background_imageview);
@@ -148,11 +151,11 @@ public class MainActivity extends AppCompatActivity {
                                 MediaStore.Images.Media.getBitmap(getContentResolver(), uri),
                                 1200);
 
-                callCloudVision(bitmap);
-                /*Intent showImageFullscreen = new Intent(MainActivity.this,ShowPictureActivity.class);
+                //callCloudVision(bitmap);
+                Intent showImageFullscreen = new Intent(MainActivity.this,ShowPictureActivity.class);
                 showImageFullscreen.putExtra("IMAGE",getCameraFile().getAbsolutePath());
                 showImageFullscreen.putExtra("VALUES"," THE :0.987 : QUICK :0.876: BROWN :0.764 : FOX :0.654: JUMPS :0.976: OVER :0.324: THE:0.496 : LAZY : DOG");
-                startActivityForResult(showImageFullscreen,SHOW_PICTURE_ACTIVITY);*/
+                startActivityForResult(showImageFullscreen,SHOW_PICTURE_ACTIVITY);
 
             } catch (Exception e) {
                 Log.d(TAG, "Image picking failed because " + e.getMessage());

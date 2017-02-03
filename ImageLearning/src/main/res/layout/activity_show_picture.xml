@@ -7,14 +7,21 @@
     android:fitsSystemWindows="true"
     android:background="@color/white"
     tools:context="com.google.sample.imagelearning.ShowPictureActivity">
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:id="@+id/divisor1"
+        android:padding="1dp"
+        android:background="@color/colorAccent"/>
     <ImageView
         android:padding="1dp"
+        android:layout_below="@id/divisor1"
         android:cropToPadding="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
         android:contentDescription="@string/image_token"
-        android:background="@drawable/img_borded"
+        android:background="@android:color/black"
         android:id="@+id/fullscreen_img"/>
     <ImageButton
         android:layout_width="wrap_content"
@@ -28,9 +35,9 @@
     <!-- dummy view as divisor -->
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="2dp"
         android:layout_below="@id/fullscreen_img"
-        android:id="@+id/divisor"
+        android:id="@+id/divisor2"
         android:padding="1dp"
         android:background="@color/colorAccent"/>
 
@@ -39,7 +46,7 @@
         <org.apmem.tools.layouts.FlowLayout
             android:layout_width="fill_parent"
             android:id="@+id/buttons_flowlayout"
-            android:layout_below="@id/divisor"
+            android:layout_below="@id/divisor2"
             android:gravity="center"
             android:layout_centerInParent="true"
             android:layout_centerVertical="true"
@@ -51,7 +58,7 @@
         android:id="@+id/chart"
         android:layout_below="@id/buttons_flowlayout"
         android:layout_width="match_parent"
-        android:visibility="gone"
+        android:visibility="visible"
         android:layout_height="match_parent" />
 
 

@@ -7,13 +7,19 @@
     android:fitsSystemWindows="true"
     android:background="@color/white"
     tools:context="com.google.sample.imagelearning.ShowPictureActivity">
+    <View
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:id="@+id/divisor3"
+        android:background="@color/colorAccent"/>
     <ImageView
         android:padding="1dp"
+        android:layout_toEndOf="@id/divisor3"
         android:cropToPadding="true"
-        android:adjustViewBounds="true"
         android:layout_width="wrap_content"
+        android:scaleType="fitCenter"
         android:layout_height="match_parent"
-        android:background="@drawable/img_borded"
+        android:background="@android:color/black"
         android:contentDescription="@string/image_token"
         android:id="@+id/fullscreen_img"/>
     <ImageButton
@@ -27,34 +33,31 @@
         android:layout_alignEnd="@id/fullscreen_img"/>
     <!-- dummy view as divisor -->
     <View
-        android:layout_width="1dp"
+        android:layout_width="2dp"
         android:layout_height="match_parent"
         android:layout_toEndOf="@id/fullscreen_img"
-        android:id="@+id/divisor"
+        android:id="@+id/divisor4"
         android:background="@color/colorAccent"/>
-    <ScrollView
-        android:layout_width="match_parent"
-        android:id="@+id/button_scrollview"
-        android:layout_alignParentTop="true"
-        android:layout_centerInParent="true"
-        android:layout_toEndOf="@id/divisor"
-        android:layout_height="wrap_content">
 
         <org.apmem.tools.layouts.FlowLayout
             android:layout_width="fill_parent"
+            android:layout_alignParentTop="true"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@id/divisor4"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
             android:layout_gravity="center_vertical"
             android:id="@+id/buttons_flowlayout"
             android:orientation="horizontal"
             android:layout_height="wrap_content" />
-    </ScrollView>
+
     <com.github.mikephil.charting.charts.BarChart
         android:id="@+id/chart_land"
         android:layout_toEndOf="@id/fullscreen_img"
-        android:layout_below="@id/button_scrollview"
+        android:layout_below="@id/buttons_flowlayout"
         android:layout_width="match_parent"
-        android:visibility="gone"
         android:layout_height="match_parent" />
 
 </RelativeLayout>
