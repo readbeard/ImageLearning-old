@@ -242,18 +242,17 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                     }
                 });
 
-                //FlowLayout.LayoutParams params =  new FlowLayout.LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT);
                 calculatedWordButton.setLayoutParams(new ActionBar.LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT));
                 calculatedWordButton.setText(next);
                 calculatedWordButton.setCompoundDrawablesWithIntrinsicBounds(0,0,R.mipmap.ic_volume_up_black_24dp,0);
                 calculatedWordButton.setTextColor(getColor(R.color.colorAccent));
                 calculatedWordButton.setTag("button_"+i);
-/*                if(matches.contains(next)) {
+                if(matches.contains(next)) {
                     calculatedWordButton.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.light_green), PorterDuff.Mode.MULTIPLY);
 
                 }else {
                     calculatedWordButton.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.MULTIPLY);
-                }*/
+                }
                 scrollViewFlowLayout.addView(calculatedWordButton);
                 visionWords.add(next);
                 i++;
@@ -284,7 +283,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
             @Override
             public void onInit(int status) {
                 if(status != TextToSpeech.ERROR) {
-                    t1.setLanguage(Locale.UK);
+                    t1.setLanguage(new Locale(currentLanguage));
                 }
             }
         });
