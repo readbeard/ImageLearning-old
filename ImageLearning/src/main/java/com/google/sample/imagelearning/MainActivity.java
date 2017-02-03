@@ -264,32 +264,43 @@ public class MainActivity extends AppCompatActivity {
 
                 } catch (GoogleJsonResponseException e) {
                     Log.d(TAG, "failed to make API request because " + e.getContent());
-                    res[0] = e.getContent();
+                    mProgressDialog.dismiss();
+                    this.cancel(true);
                 } catch (IOException e) {
                     Log.d(TAG, "failed to make API request because of other IOException " +
                             e.getMessage());
+                    mProgressDialog.dismiss();
+                    this.cancel(true);
                 } catch (VisionServiceException e) {
                     Log.d(TAG,"failed to call microsoft APIs "+e.getMessage());
-                    res[1] = e.getMessage();
+                    mProgressDialog.dismiss();
+                    this.cancel(true);
                 }
                 return res;
             }
 
+            @Override
+            protected void onCancelled(String[] strings) {
+                super.onCancelled(strings);
+                Toast.makeText(MainActivity.this,"An error occurred, please try again",Toast.LENGTH_LONG).show();
+                startCamera();
+            }
+
             protected void onPostExecute(String[] result) {
-                String microsoftFinalResults = getMicrosoftDataPretty(result[0]);
+                String microsoftFinalResults = result[0] == null ? "" : getMicrosoftDataPretty(result[0]);
                 String googleFinalResults = result[1];
 
-                String matches = getMatches(microsoftFinalResults,googleFinalResults);
-                System.out.println("MATCHES: "+matches);
+                String matches = getMatches(microsoftFinalResults, googleFinalResults);
+                System.out.println("MATCHES: " + matches);
 
-                Intent showImageFullscreen = new Intent(MainActivity.this,ShowPictureActivity.class);
-                showImageFullscreen.putExtra("IMAGE",getCameraFile().getAbsolutePath());
-                showImageFullscreen.putExtra("VALUES",googleFinalResults);
+                Intent showImageFullscreen = new Intent(MainActivity.this, ShowPictureActivity.class);
+                showImageFullscreen.putExtra("IMAGE", getCameraFile().getAbsolutePath());
+                showImageFullscreen.putExtra("VALUES", googleFinalResults);
                 showImageFullscreen.putExtra("MATCHES", matches);
-                startActivityForResult(showImageFullscreen,SHOW_PICTURE_ACTIVITY);
-                //System.out.println(result[0]+ "\n"+result[1]);
+                startActivityForResult(showImageFullscreen, SHOW_PICTURE_ACTIVITY);
 
                 mProgressDialog.dismiss();
+
             }
         }.execute();
     }
