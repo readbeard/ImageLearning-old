@@ -83,6 +83,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
     private BarChart bc;
     private List<BarEntry> entries = new ArrayList<>();
     private ArrayList<String> visionWords = new ArrayList<>();
+    private String matches;
 
     /**
      * Called on activity create. It sets the proper layout, considering the current orientation, and sets up the view that are
@@ -113,6 +114,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
 
         absolutePath = savedInstanceState == null? getIntent().getStringExtra("IMAGE"): savedInstanceState.getString("path");
         visionValues = getIntent().getStringExtra("VALUES");
+        matches = getIntent().getStringExtra("MATCHES");
 
         changeLanguageButton = (ImageButton) findViewById(R.id.change_language);
 
@@ -245,7 +247,12 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                 calculatedWordButton.setCompoundDrawablesWithIntrinsicBounds(0,0,R.mipmap.ic_volume_up_black_24dp,0);
                 calculatedWordButton.setTextColor(getColor(R.color.colorAccent));
                 calculatedWordButton.setTag("button_"+i);
-                calculatedWordButton.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.MULTIPLY);
+                if(matches.contains(next)) {
+                    calculatedWordButton.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.light_green), PorterDuff.Mode.MULTIPLY);
+
+                }else {
+                    calculatedWordButton.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.MULTIPLY);
+                }
                 scrollViewFlowLayout.addView(calculatedWordButton);
                 visionWords.add(next);
                 i++;

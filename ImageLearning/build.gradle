@@ -34,5 +34,8 @@ dependencies {
     compile 'com.github.PhilJay:MPAndroidChart:v3.0.1'
     compile 'org.apmem.tools:layouts:1.10@aar'
 
+    compile 'com.microsoft.projectoxford:vision:1.0.374'
+
+
     testCompile 'junit:junit:4.12'
 }

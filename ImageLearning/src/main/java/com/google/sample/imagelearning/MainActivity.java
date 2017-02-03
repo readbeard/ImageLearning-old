@@ -17,11 +17,8 @@
 package com.google.sample.imagelearning;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -29,15 +26,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -54,15 +46,23 @@ import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
 import com.google.api.services.vision.v1.model.EntityAnnotation;
 import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
+import com.google.gson.Gson;
+import com.microsoft.projectoxford.vision.VisionServiceClient;
+import com.microsoft.projectoxford.vision.VisionServiceRestClient;
+import com.microsoft.projectoxford.vision.contract.AnalysisResult;
+import com.microsoft.projectoxford.vision.rest.VisionServiceException;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String CLOUD_VISION_API_KEY = "";
+    private final String CLOUD_VISION_API_KEY = getString(R.string.cloud_vision_apikey);
+    private java.lang.String VISIONSERVICE_API_KEY = getString(R.string.visionservice_apikey);
     public static final String FILE_NAME = "temp.jpg";
     private static final String ANDROID_CERT_HEADER = "X-Android-Cert";
     private static final String ANDROID_PACKAGE_HEADER = "X-Android-Package";
@@ -75,6 +75,8 @@ public class MainActivity extends AppCompatActivity {
     private ImageView mainActivityImageView;
     private Bitmap bitmap;
 
+    private VisionServiceClient client;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +85,11 @@ public class MainActivity extends AppCompatActivity {
 
         mainActivityLayout = (RelativeLayout) findViewById(R.id.mainactivity_layout);
         mainActivityImageView = (ImageView) findViewById(R.id.mainactivity_background_imageview);
+
+        if (client==null){
+            client = new VisionServiceRestClient(VISIONSERVICE_API_KEY);
+        }
+
         startCamera();
     }
 
@@ -115,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
         }else if(requestCode == SHOW_PICTURE_ACTIVITY && resultCode == RESULT_OK){
             startCamera();
         }else if(requestCode == CAMERA_IMAGE_REQUEST && resultCode == RESULT_CANCELED){
-            startCamera();
+            this.finish();
         }
     }
 
@@ -147,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
                 showImageFullscreen.putExtra("VALUES"," THE :0.987 : QUICK :0.876: BROWN :0.764 : FOX :0.654: JUMPS :0.976: OVER :0.324: THE:0.496 : LAZY : DOG");
                 startActivityForResult(showImageFullscreen,SHOW_PICTURE_ACTIVITY);*/
 
-            } catch (IOException e) {
+            } catch (Exception e) {
                 Log.d(TAG, "Image picking failed because " + e.getMessage());
                 Toast.makeText(this, R.string.image_picker_error, Toast.LENGTH_LONG).show();
             }
@@ -161,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
         // Switch text to loading
 
         // Do the real work in an async task, because we need to use the network anyway
-        new AsyncTask<Object, Integer, String>() {
+        new AsyncTask<Object, Integer, String[]>() {
             private ProgressDialog mProgressDialog = new ProgressDialog(MainActivity.this);
             @Override
             protected void onPreExecute() {
@@ -177,8 +184,12 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            protected String doInBackground(Object... params) {
+            protected String[] doInBackground(Object... params) {
+                String[] res = new String[2];
                 try {
+                    //call first microsoft
+                    String microsoftResulst = process();
+
                     HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
                     JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
 
@@ -243,27 +254,77 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "created Cloud Vision request object, sending request");
 
                     BatchAnnotateImagesResponse response = annotateRequest.execute();
-                    return convertResponseToString(response);
+                    String googleResults = convertGoogleResponseToString(response);
+
+                     res[0] = microsoftResulst;
+                     res[1] = googleResults;
 
                 } catch (GoogleJsonResponseException e) {
                     Log.d(TAG, "failed to make API request because " + e.getContent());
+                    res[0] = e.getContent();
                 } catch (IOException e) {
                     Log.d(TAG, "failed to make API request because of other IOException " +
                             e.getMessage());
+                } catch (VisionServiceException e) {
+                    Log.d(TAG,"failed to call microsoft APIs "+e.getMessage());
+                    res[1] = e.getMessage();
                 }
-                return "Cloud Vision API request failed. Check logs for details.";
+                return res;
             }
 
-            protected void onPostExecute(String result) {
-                mProgressDialog.dismiss();
+            protected void onPostExecute(String[] result) {
+                String microsoftFinalResults = getMicrosoftDataPretty(result[0]);
+                String googleFinalResults = result[1];
+
+                String matches = getMatches(microsoftFinalResults,googleFinalResults);
+                System.out.println("MATCHES: "+matches);
 
                 Intent showImageFullscreen = new Intent(MainActivity.this,ShowPictureActivity.class);
                 showImageFullscreen.putExtra("IMAGE",getCameraFile().getAbsolutePath());
-                showImageFullscreen.putExtra("VALUES",result);
+                showImageFullscreen.putExtra("VALUES",googleFinalResults);
+                showImageFullscreen.putExtra("MATCHES", matches);
                 startActivityForResult(showImageFullscreen,SHOW_PICTURE_ACTIVITY);
+                //System.out.println(result[0]+ "\n"+result[1]);
 
+                mProgressDialog.dismiss();
             }
         }.execute();
+    }
+
+    private String getMatches(String microsoftFinalResults, String googleFinalResults) {
+        String matches ="";
+        Scanner microsoftScanner = new Scanner(microsoftFinalResults);
+        microsoftScanner.useDelimiter(":");
+        Scanner googleScanner = new Scanner(googleFinalResults);
+        googleScanner.useDelimiter(":|\\n|\\s ");
+
+        while(googleScanner.hasNext()){
+            String nextGoogle = googleScanner.next();
+            if(!nextGoogle.startsWith("0")){
+                while(microsoftScanner.hasNext()){
+                    String nextMicrosoft = microsoftScanner.next();
+                    if(nextGoogle.contains(nextMicrosoft))
+                        matches+= nextGoogle;
+                }
+            }
+            microsoftScanner = new Scanner(microsoftFinalResults);
+            microsoftScanner.useDelimiter(":");
+        }
+        return matches;
+    }
+
+    private String getMicrosoftDataPretty(String s) {
+        Gson gson = new Gson();
+        AnalysisResult analysisResult = gson.fromJson(s, AnalysisResult.class);
+
+        /*for (Caption caption: result.description.captions) {
+            res += ("Caption: " + caption.text + ", confidence: " + caption.confidence + " ");
+        }*/
+        String res = "";
+        for (String tag: analysisResult.description.tags) {
+            res+=( tag +":");
+        }
+        return res;
     }
 
     public static Bitmap scaleBitmapDown(Bitmap bitmap, int maxDimension) {
@@ -287,7 +348,7 @@ public class MainActivity extends AppCompatActivity {
         return Bitmap.createScaledBitmap(bitmap, resizedWidth, resizedHeight, false);
     }
 
-    private String convertResponseToString(BatchAnnotateImagesResponse response) {
+    private String convertGoogleResponseToString(BatchAnnotateImagesResponse response) {
         String message = "";
 
         List<EntityAnnotation> labels = response.getResponses().get(0).getLabelAnnotations();
@@ -302,5 +363,23 @@ public class MainActivity extends AppCompatActivity {
 
         return message;
     }
+
+
+    private String process() throws VisionServiceException, IOException {
+        Gson gson = new Gson();
+
+        // Put the image into an input stream for detection.
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, output);
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(output.toByteArray());
+
+        AnalysisResult v = this.client.describe(inputStream, 1);
+
+        String result = gson.toJson(v);
+        Log.d("result", result);
+
+        return result;
+    }
+
 
 }
