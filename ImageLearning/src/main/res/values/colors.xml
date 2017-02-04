@@ -6,6 +6,8 @@
 
     <color name="black_overlay">#66000000</color>
     <color name="blue">#4db6ac</color>
+    <color name="blueaccent">#00bcd4</color>
     <color name="white">#ffffff</color>
     <color name="light_green">#c8e6c9</color>
+    <color name="deep_purple">#673ab7</color>
 </resources>

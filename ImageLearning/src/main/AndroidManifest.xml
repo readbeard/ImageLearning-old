@@ -12,16 +12,16 @@
 
     <application
         android:allowBackup="true"
+        android:hardwareAccelerated="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:supportsRtl="true"
-        android:hardwareAccelerated="false"
         android:largeHeap="true"
+        android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name"
             android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,9 +31,10 @@
         </activity>
         <activity
             android:name=".ShowPictureActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden">
-
-        </activity>
+            android:configChanges="orientation|screenSize|keyboardHidden" />
+        <activity
+            android:name="com.google.sample.imagelearning.IntroActivity"
+            android:label="@string/app_name" />
     </application>
 
 </manifest>

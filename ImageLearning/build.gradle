@@ -18,7 +18,9 @@ android {
         }
     }
 }
-
+repositories {
+    mavenCentral()
+}
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
@@ -35,7 +37,7 @@ dependencies {
     compile 'org.apmem.tools:layouts:1.10@aar'
 
     compile 'com.microsoft.projectoxford:vision:1.0.374'
-
+    compile 'com.github.paolorotolo:appintro:4.1.0'
 
     testCompile 'junit:junit:4.12'
 }

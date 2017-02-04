@@ -19,6 +19,7 @@ package com.google.sample.imagelearning;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -61,6 +62,9 @@ import java.util.List;
 import java.util.Scanner;
 
 public class MainActivity extends AppCompatActivity {
+    private static final int INTRO_FINISHED = 5;
+    private static final int START_INTRO = 6;
+    private static final int INTRO_FAILED = 7;
     private String CLOUD_VISION_API_KEY;
     private java.lang.String VISIONSERVICE_API_KEY;
     public static final String FILE_NAME = "temp.jpg";
@@ -74,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
     private RelativeLayout mainActivityLayout;
     private ImageView mainActivityImageView;
     private Bitmap bitmap;
-
+    private SharedPreferences prefs;
     private VisionServiceClient client;
 
 
@@ -92,8 +96,17 @@ public class MainActivity extends AppCompatActivity {
         if (client==null){
             client = new VisionServiceRestClient(VISIONSERVICE_API_KEY);
         }
+        prefs = getSharedPreferences("com.google.sample.imagelearning", MODE_PRIVATE);
+        if (prefs.getBoolean("firstrun", true)) {
+            // Do first run stuff here then set 'firstrun' as false
+            // using the following line to edit/commit prefs
+            Intent i = new Intent(MainActivity.this,IntroActivity.class);
+            startActivityForResult(i,START_INTRO);
+        }else{
+            startCamera();
 
-        startCamera();
+        }
+
     }
 
 
@@ -114,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
         File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         return new File(dir, FILE_NAME);
     }
+    
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -126,7 +140,13 @@ public class MainActivity extends AppCompatActivity {
             startCamera();
         }else if(requestCode == CAMERA_IMAGE_REQUEST && resultCode == RESULT_CANCELED){
             this.finish();
+        }else if(requestCode == START_INTRO && resultCode == INTRO_FINISHED){
+            prefs.edit().putBoolean("firstrun", false).apply();
+            startCamera();
+        }else if(requestCode == START_INTRO && resultCode == INTRO_FAILED){
+            this.finish();
         }
+            
     }
 
     @Override
