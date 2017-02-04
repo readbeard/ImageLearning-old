@@ -8,6 +8,8 @@ allows the user to take a picture and, by recognizing the subject of it, shows a
 of estimated results. Those results are pretty close to the real object the user 
 of terms related to the subject of the photo. It also provides a translation of the given terms, to make the user learn how to pronounce the term in different languages. 
 At this state of the art, the application supports 5 languages: English (UK), Italian, Spanish, French and German.
+
+![Image of Main Screen](https://github.com/readbeard/ImageLearning/blob/master/glasses.png)
 ###But that’s not all! 
 Together with the calculated words about the picture, ImageLearning provides a graph showing
 the confidence value of that particular term. This value is a number in the [0,1] interval, 
