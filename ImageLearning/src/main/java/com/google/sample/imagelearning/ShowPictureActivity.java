@@ -88,6 +88,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
     private List<BarEntry> entries = new ArrayList<>();
     private ArrayList<String> visionWords = new ArrayList<>();
     private String matches;
+    private String oldmatches;
 
     /**
      * Called on activity create. It sets the proper layout, considering the current orientation, and sets up the view that are
@@ -191,6 +192,8 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
             t1.setLanguage(targetLanguage);
         }
         visionValues ="";
+        oldmatches = matches;
+        matches="";
         for(int i =0; i<buttonTotalNumber;i++)
             translateText("button_"+i);
 
@@ -571,6 +574,8 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                 //this is needed since when adding buttons on rotating screen we call again addButton(), that relies on
                 //visualValues string to fill the text of the buttons. Since we are translating it, we need to update it.
                 visionValues = visionValues + result+ ":";
+                if(oldmatches.contains(textToTranslate))
+                    matches = matches+ result;
                 //check this, since if rotating the view can be null
                 buttonToTranslate.setText(result);
             }
