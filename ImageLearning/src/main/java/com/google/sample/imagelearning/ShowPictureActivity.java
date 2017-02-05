@@ -224,7 +224,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                 graphEntryCount++;
             }
 
-            if(!next.startsWith("0")){
+            if(!next.startsWith("0") && !visionValues.substring(0,i).contains(next)){
                 final Button calculatedWordButton = new Button(this);
                 final Animation myAnim = AnimationUtils.loadAnimation(this, R.anim.fade_inout);
 
