@@ -34,6 +34,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -573,11 +574,17 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
             protected void onPostExecute(String result) {
                 //this is needed since when adding buttons on rotating screen we call again addButton(), that relies on
                 //visualValues string to fill the text of the buttons. Since we are translating it, we need to update it.
-                visionValues = visionValues + result+ ":";
-                if(oldmatches.contains(textToTranslate))
-                    matches = matches+ result;
-                //check this, since if rotating the view can be null
-                buttonToTranslate.setText(result);
+                if(!result.isEmpty()) {
+                    visionValues = visionValues + result + ":";
+                    if (oldmatches.contains(textToTranslate))
+                        matches = matches + result;
+                    //check this, since if rotating the view can be null
+                    buttonToTranslate.setText(result);
+                }
+                else{
+                    Toast.makeText(ShowPictureActivity.this,"An error occurred, please try again",Toast.LENGTH_LONG).show();
+
+                }
             }
 
         }.execute();
