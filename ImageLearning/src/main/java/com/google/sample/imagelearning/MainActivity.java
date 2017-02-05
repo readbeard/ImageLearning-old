@@ -192,12 +192,14 @@ public class MainActivity extends AppCompatActivity {
 
         // Do the real work in an async task, because we need to use the network anyway
         new AsyncTask<Object, Integer, String[]>() {
+            public int GOOGLE_FINISHED;
+            private int MICROSOFT_DONE;
             private ProgressDialog mProgressDialog = new ProgressDialog(MainActivity.this);
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                mProgressDialog.setMessage("Please wait");
-                mProgressDialog.setTitle("Calculating results...");
+                mProgressDialog.setMessage("Asking Microsoft...");
+                mProgressDialog.setTitle("Calculating results");
                 mProgressDialog.setCancelable(false);
                 mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
                 mProgressDialog.setOwnerActivity(MainActivity.this);
@@ -207,12 +209,24 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
+            protected void onProgressUpdate(Integer... values) {
+                super.onProgressUpdate(values);
+                if(values[0] == MICROSOFT_DONE){
+                    mProgressDialog.setMessage("Asking Google...");
+                }else if(values[0] == GOOGLE_FINISHED){
+                    mProgressDialog.setMessage("Done!");
+                }
+            }
+
+            @Override
             protected String[] doInBackground(Object... params) {
                 String[] res = new String[2];
                 try {
                     //call first microsoft
-                    String microsoftResulst = process();
 
+                    String microsoftResulst = process();
+                    publishProgress(MICROSOFT_DONE);
+                    Thread.sleep(500);
                     HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
                     JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
 
@@ -279,8 +293,8 @@ public class MainActivity extends AppCompatActivity {
                     BatchAnnotateImagesResponse response = annotateRequest.execute();
                     String googleResults = convertGoogleResponseToString(response);
 
-                     res[0] = microsoftResulst;
-                     res[1] = googleResults;
+                    res[0] = microsoftResulst;
+                    res[1] = googleResults;
 
                 } catch (GoogleJsonResponseException e) {
                     Log.d(TAG, "failed to make API request because " + e.getContent());
@@ -295,6 +309,8 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG,"failed to call microsoft APIs "+e.getMessage());
                     mProgressDialog.dismiss();
                     this.cancel(true);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
                 return res;
             }
@@ -312,6 +328,7 @@ public class MainActivity extends AppCompatActivity {
 
                 String matches = getMatches(microsoftFinalResults, googleFinalResults);
                 System.out.println("MATCHES: " + matches);
+
 
                 Intent showImageFullscreen = new Intent(MainActivity.this, ShowPictureActivity.class);
                 showImageFullscreen.putExtra("IMAGE", getCameraFile().getAbsolutePath());
