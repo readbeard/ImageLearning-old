@@ -26,7 +26,7 @@ public class IntroActivity extends AppIntro {
         addSlide(AppIntroFragment.newInstance("Welcome to ImageLearning!", "Learn languages by catching photos\n\nTake a picture of something you don't know how to say ", R.drawable.slide_1, getColor(R.color.colorPrimary)));
         addSlide(AppIntroFragment.newInstance("Ask the big ones!", "Let ImageLearning work for you...\n\n ...it will combine machine learning results taken from Google and Microsoft", R.drawable.slide_2, getColor(R.color.blueaccent)));
         addSlide(AppIntroFragment.newInstance("Great!", "Get your words displayed in buttons, select language, click to listen and learn the word!\n\n The green buttons show the found matches between Google and Microsoft ", R.drawable.slide_3, getColor(R.color.deep_purple)));
-        addSlide(AppIntroFragment.newInstance("Cool!", "Get your words displayed and a graph about result probabilities\n\n ", R.drawable.slide_4, getColor(R.color.blue)));
+        addSlide(AppIntroFragment.newInstance("Cool!", "Get your words displayed and a graph about result probabilities\n\n Long click on a button to Google search for it inside the app ", R.drawable.slide_4, getColor(R.color.blue)));
 
         // OPTIONAL METHODS
         // Override bar/separator color.
