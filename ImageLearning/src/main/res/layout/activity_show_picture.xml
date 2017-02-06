@@ -66,11 +66,12 @@
         android:id="@+id/close_webview_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@id/webview"
+        android:layout_alignBottom="@id/buttons_flowlayout"
         android:layout_alignEnd="@id/webview"
         android:visibility="gone"
         android:onClick="closeWebViewFromXML"
-        android:src="@android:drawable/ic_menu_close_clear_cancel"/>
+        android:background="@color/colorAccent"
+        android:src="@mipmap/ic_close_white_24dp"/>
 
     <com.github.mikephil.charting.charts.BarChart
         android:id="@+id/chart"

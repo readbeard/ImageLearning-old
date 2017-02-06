@@ -316,12 +316,14 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                 case KeyEvent.KEYCODE_BACK:
                     if (myWebView.canGoBack()) {
                         myWebView.goBack();
-                    } else {
+                    } else if(!currentURL.isEmpty()){
                         myWebView.setVisibility(View.GONE);
                         currentURL="";
                         closeWebView.setVisibility(View.GONE);
                         bc.setVisibility(View.VISIBLE);
-                    }
+                    }else
+                        finishWithResult();
+
                     return true;
             }
 
@@ -519,10 +521,6 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        finishWithResult();
-    }
 
     /**
      * Called when the back button is pressed. It brings the flow back to MainActivity.
