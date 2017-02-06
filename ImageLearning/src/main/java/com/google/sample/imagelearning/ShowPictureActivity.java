@@ -165,11 +165,11 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
                 String res = visionWords.get((int)value);
-                try{
-                    return res.substring(0,5)+".";
-                }catch (Exception e){
+                if(res.length()>5)
+                    return res.substring(1,5)+".";
+                else
                     return res;
-                }
+
             }
 
 
@@ -232,7 +232,8 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
             //if reading an interval of confidence, add a new Entry to the graph. If an element is present in a position
             //don't add  it (it means that it was previously already added).
             if(next.startsWith("0") && entries.size() <= graphEntryCount) {
-                entries.add(new BarEntry(graphEntryCount, Float.parseFloat(next)));
+
+                entries.add(new BarEntry(graphEntryCount, Float.parseFloat(next.replace(',', '.'))));
                 graphEntryCount++;
             }
 
