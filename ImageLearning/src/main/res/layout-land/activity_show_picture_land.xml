@@ -39,6 +39,8 @@
         android:id="@+id/divisor4"
         android:background="@color/colorAccent"/>
 
+
+
         <org.apmem.tools.layouts.FlowLayout
             android:layout_width="fill_parent"
             android:layout_alignParentTop="true"
@@ -52,12 +54,31 @@
             android:id="@+id/buttons_flowlayout"
             android:orientation="horizontal"
             android:layout_height="wrap_content" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_toEndOf="@id/fullscreen_img"
+        android:visibility="gone"
+        android:layout_below="@id/buttons_flowlayout"
+        android:id="@+id/divisor5"
+        android:background="@color/colorAccent"/>
+
+    <ProgressBar
+        android:id="@+id/progressBar1"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_toEndOf="@id/divisor4"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="160dp"
+        android:visibility="gone"
+        android:layout_centerVertical="true"
+        android:layout_below="@id/divisor5"/>
 
     <WebView
         android:id="@+id/webview"
         android:layout_width="wrap_content"
-        android:layout_toRightOf="@id/fullscreen_img"
-        android:layout_below="@id/buttons_flowlayout"
+        android:layout_toEndOf="@id/divisor4"
+        android:layout_below="@id/divisor5"
         android:visibility="gone"
         android:layout_height="match_parent">
         </WebView>
@@ -76,7 +97,7 @@
     <com.github.mikephil.charting.charts.BarChart
         android:id="@+id/chart_land"
         android:layout_toEndOf="@id/fullscreen_img"
-        android:layout_below="@id/buttons_flowlayout"
+        android:layout_below="@id/divisor5"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

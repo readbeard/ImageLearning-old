@@ -207,6 +207,13 @@ public class MainActivity extends AppCompatActivity {
 
                 callCloudVision(bitmap);
 
+                //debugging code
+                /*Intent showImageFullscreen = new Intent(MainActivity.this,ShowPictureActivity.class);
+                showImageFullscreen.putExtra("IMAGE",getCameraFile().getAbsolutePath());
+                showImageFullscreen.putExtra("VALUES"," THE :0.987 : QUICK :0.876: BROWN :0.764 : FOX :0.654: JUMPS :0.976: OVER :0.324: THE:0.496 : LAZY : DOG");
+                showImageFullscreen.putExtra("MATCHES","THE");
+                startActivityForResult(showImageFullscreen,SHOW_PICTURE_ACTIVITY);*/
+
             } catch (Exception e) {
                 Log.d(TAG, "Image picking failed because " + e.getMessage());
                 Toast.makeText(this, R.string.image_picker_error, Toast.LENGTH_LONG).show();

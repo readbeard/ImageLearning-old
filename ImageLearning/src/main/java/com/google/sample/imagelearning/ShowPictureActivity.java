@@ -1,6 +1,7 @@
 package com.google.sample.imagelearning;
 
 import android.annotation.TargetApi;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.ColorStateList;
@@ -29,12 +30,14 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.Toast;
@@ -74,8 +77,6 @@ import java.util.regex.Pattern;
 
 public class ShowPictureActivity extends AppCompatActivity implements  SelectLanguageDialog.OnCompleteListener{
     private ImageView img;
-    private ScrollView scrollView;
-    private RelativeLayout.LayoutParams scrollViewParams;
     private RelativeLayout relativeLayout;
 
     private Bitmap bmp;
@@ -96,6 +97,8 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
     private WebView myWebView;
     private ImageButton closeWebView;
     private String currentURL="";
+    private View webViewDivisor;
+    private ProgressBar loading;
 
     /**
      * Called on activity create. It sets the proper layout, considering the current orientation, and sets up the view that are
@@ -121,8 +124,6 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
 
         disableVirtualButtons();
 
-        //scrollView = (ScrollView) findViewById(R.id.button_scrollview);
-        //scrollViewParams = (RelativeLayout.LayoutParams) scrollView.getLayoutParams();
         scrollViewFlowLayout = (FlowLayout) findViewById(R.id.buttons_flowlayout);
         img = (ImageView) findViewById(R.id.fullscreen_img);
 
@@ -140,6 +141,10 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
 
     }
 
+    /**
+     * Virtual buttons can cover views and occupy space that is needed to show all the layout.
+     * Removes them for simplicity, making the app fullscreen
+     */
     private void disableVirtualButtons() {
         //if there are virtual buttons, don't show them since they would waste some space and make some buttons invisible
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
@@ -291,36 +296,51 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
         initializeGraph();
     }
 
+    /**
+     * Makes webview visible, and starts google searching what is specified in the parameter, appending it to
+     * the standard URL to make a google search
+     * @param text the thing thas has to be searched.
+     */
     private void showWebViewSearch(CharSequence text) {
         myWebView.setVisibility(View.VISIBLE);
+        webViewDivisor.setVisibility(View.VISIBLE);
         closeWebView.setVisibility(View.VISIBLE);
         myWebView.loadUrl("https://www.google.com/search?q="+text);
         bc.setVisibility(View.GONE);
     }
 
     /**
-     * only called by imagebutton in XML code
-     * @param v
+     * Callback method only invoked by imagebutton in XML code. It stops webview loading, sets it to invisible (gone)
+     * together with loading spinner.
+     * @param v the view from which this method is called.
      */
     public void closeWebViewFromXML(View v){
         myWebView.setVisibility(View.GONE);
         closeWebView.setVisibility(View.GONE);
+        webViewDivisor.setVisibility(View.GONE);
+        loading.setVisibility(View.GONE);
         currentURL = "";
         bc.setVisibility(View.VISIBLE);
+        myWebView.stopLoading();
     }
 
+    /**
+     * Callback method to handle user interaction with system buttons. In particular, it deals with back button
+     * to allow user go back in navigation history in web view. If no back pages are available, it closes the web view.
+     * If web view already closed, behaves like normal back button and closes the activity.
+     * @param keyCode
+     * @param event
+     * @return
+     */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
             switch (keyCode) {
                 case KeyEvent.KEYCODE_BACK:
-                    if (myWebView.canGoBack()) {
+                    if (myWebView.canGoBack() && (loading.getVisibility()== View.VISIBLE || myWebView.getVisibility()==View.VISIBLE)) {
                         myWebView.goBack();
                     } else if(!currentURL.isEmpty()){
-                        myWebView.setVisibility(View.GONE);
-                        currentURL="";
-                        closeWebView.setVisibility(View.GONE);
-                        bc.setVisibility(View.VISIBLE);
+                        closeWebViewFromXML(null);
                     }else
                         finishWithResult();
 
@@ -448,79 +468,6 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
 
         return Bitmap.createScaledBitmap(image, width, height, true);
     }
-    /**
-     * Computes the best orientation for the picture taken. Returns the orientation that has to be sent to 'rotateBitmap' method.
-     * @param path the path of the picture taken
-     * @return the orientation
-     */
-    private int calculateImageOrientation(String path){
-        ExifInterface exif = null;
-        try {
-            exif = new ExifInterface(path);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,
-                ExifInterface.ORIENTATION_UNDEFINED);
-
-
-        return orientation;
-    }
-
-    /**
-     * Rotates the bitmap in order to show it better basing on its size. If picture taken in landscape mode, it rotates it
-     * to that mode, and so on...
-     * @param bitmap the bitmap to be rotated
-     * @param orientation the right orientation for it
-     * @return the rotated bitmap.
-     */
-    public Bitmap rotateBitmap(Bitmap bitmap, int orientation) {
-
-
-        Matrix matrix = new Matrix();
-        switch (orientation) {
-            case ExifInterface.ORIENTATION_NORMAL:
-                return bitmap;
-            case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
-                matrix.setScale(-1, 1);
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_180:
-                matrix.setRotate(180);
-                break;
-            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
-                matrix.setRotate(180);
-                matrix.postScale(-1, 1);
-                break;
-            case ExifInterface.ORIENTATION_TRANSPOSE:
-                matrix.setRotate(90);
-                matrix.postScale(-1, 1);
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_90:
-                matrix.setRotate(90);
-                break;
-            case ExifInterface.ORIENTATION_TRANSVERSE:
-                matrix.setRotate(-90);
-                matrix.postScale(-1, 1);
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_270:
-                matrix.setRotate(-90);
-                break;
-            default:
-                return bitmap;
-        }
-        try {
-            Bitmap bmRotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-            bitmap.recycle();
-            System.out.println("BITMAP: "+bitmap);
-            return bmRotated;
-        }
-        catch (OutOfMemoryError e) {
-            e.printStackTrace();
-            System.out.println("BITMAP: "+bitmap);
-            return null;
-        }
-    }
-
 
     /**
      * Called when the back button is pressed. It brings the flow back to MainActivity.
@@ -553,7 +500,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
             relativeLayout = (RelativeLayout) findViewById(R.id.activity_show_picture_land);
             bc = (BarChart) findViewById(R.id.chart_land);
         }
-        System.out.println("URL: "+currentURL);
+
         setUpWebView();
         setImageViewBitmap(absolutePath);
         disableVirtualButtons();
@@ -562,23 +509,41 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
         super.onConfigurationChanged(newConfig);
     }
 
+    /**
+     * Sets up web view, loading spinner and View divisor (a straight line, just for GUI purposes). It initializes
+     * the callback functions of the webview, in order to show it only when available, or to show the loading
+     * spinner if not ready yet. Last condition checks if there was a saved URL from previous activity of this view. That is,
+     * checks if a request was issued while changing orientation of the screen, and restarts it if true.
+     */
     private void setUpWebView() {
+        loading = (ProgressBar) findViewById(R.id.progressBar1);
         myWebView = (WebView) findViewById(R.id.webview);
+        webViewDivisor = (View) findViewById(R.id.divisor5);
         closeWebView = (ImageButton) findViewById(R.id.close_webview_button);
-        myWebView.setWebViewClient(new WebViewClient()
-        {
+        myWebView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                currentURL = url;
+                loading.setVisibility(View.VISIBLE);
+                myWebView.setVisibility(View.INVISIBLE);
+                super.onPageStarted(view, url, favicon);
+            }
+
             @Override
             public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
                 Log.i("Listener", "Finish loading: "+ url);
-                currentURL = url;
+                if(myWebView.getVisibility() == View.INVISIBLE) {
+                    loading.setVisibility(View.INVISIBLE);
+                    myWebView.setVisibility(View.VISIBLE);
+                }
+                super.onPageFinished(view, url);
             }
         });
 
         if(!currentURL.isEmpty()) {
-            System.out.println(currentURL);
             myWebView.loadUrl(currentURL);
             myWebView.setVisibility(View.VISIBLE);
+            webViewDivisor.setVisibility(View.VISIBLE);
             closeWebView.setVisibility(View.VISIBLE);
             bc.setVisibility(View.GONE);
         }
