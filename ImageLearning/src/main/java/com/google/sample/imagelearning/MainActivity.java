@@ -81,7 +81,12 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences prefs;
     private VisionServiceClient client;
 
-
+    /**
+     * Instanciates the main views of the activity. If first launch, it starts the IntroActivity to
+     * show app tutorial. Otherwise, it starts the camera and waits for uset to take it. It also
+     * creates a VisoonServiceRestClient, needed for sending data to Microsoft.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,6 +102,8 @@ public class MainActivity extends AppCompatActivity {
             client = new VisionServiceRestClient(VISIONSERVICE_API_KEY);
         }
         prefs = getSharedPreferences("com.google.sample.imagelearning", MODE_PRIVATE);
+
+
         if (prefs.getBoolean("firstrun", true)) {
             // Do first run stuff here then set 'firstrun' as false
             // using the following line to edit/commit prefs
@@ -110,7 +117,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
+    /**
+     * Launchs a camera intent. If permissions are not granted, it prompts the user the request.
+     */
     public void startCamera() {
         if (PermissionUtils.requestPermission(
                 this,
@@ -123,12 +132,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Returns the photo file taken from camera.
+     * @return a File containing the picture.
+     */
     public File getCameraFile() {
         File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         return new File(dir, FILE_NAME);
     }
-    
 
+    /**
+     * Triggered when an intent finishes it's action. If getting results from an intent launched
+     * to take a picture, it will store it will start sending it to Google and Microsoft servers.
+     * If user cancels it's picture request, this method will close de app. Otherwise, if coming
+     * back from IntroActivity, it will set a value in the sharedPreferences in order not to start
+     * tutorial anymore and it calls startCamera().
+     * @param requestCode request code of the intent returned. Used to distinguish between intents.
+     * @param resultCode the result code of the intent returned. Used to see if something went wrong
+     * @param data optional extra data.
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -149,6 +171,12 @@ public class MainActivity extends AppCompatActivity {
             
     }
 
+    /**
+     * Getting results from permission request. For now, if permissions are denied, the app is just closed
+     * @param requestCode code of the request to take permission for.
+     * @param permissions which permissions you requested
+     * @param grantResults which results did you get
+     */
     @Override
     public void onRequestPermissionsResult(
             int requestCode, String[] permissions, int[] grantResults) {
@@ -157,11 +185,17 @@ public class MainActivity extends AppCompatActivity {
             case CAMERA_PERMISSIONS_REQUEST:
                 if (PermissionUtils.permissionGranted(requestCode, CAMERA_PERMISSIONS_REQUEST, grantResults)) {
                     startCamera();
-                }
+                }else
+                    this.finish();         //TODO: react to 'deny' choiche of user
                 break;
         }
     }
 
+    /**
+     * Loads the previously taken image into a bitmap, scales it and sends it to Google Cloud Vision.
+     * Value 1200 as scaling factor is the one recommended by Google itself
+     * @param uri the location of the file to send.
+     */
     public void uploadImage(Uri uri) {
         if (uri != null) {
             try {
@@ -172,10 +206,6 @@ public class MainActivity extends AppCompatActivity {
                                 1200);
 
                 callCloudVision(bitmap);
-                /*Intent showImageFullscreen = new Intent(MainActivity.this,ShowPictureActivity.class);
-                showImageFullscreen.putExtra("IMAGE",getCameraFile().getAbsolutePath());
-                showImageFullscreen.putExtra("VALUES"," THE :0.987 : QUICK :0.876: BROWN :0.764 : FOX :0.654: JUMPS :0.976: OVER :0.324: THE:0.496 : LAZY : DOG");
-                startActivityForResult(showImageFullscreen,SHOW_PICTURE_ACTIVITY);*/
 
             } catch (Exception e) {
                 Log.d(TAG, "Image picking failed because " + e.getMessage());
@@ -187,8 +217,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Instanciates an AsyncTask to get data from Google and Microsoft.
+     * @param bitmap the bitmap that has to be sent
+     * @throws IOException
+     */
+    //TODO: change name of this method!
     private void callCloudVision(final Bitmap bitmap) throws IOException {
-        // Switch text to loading
 
         // Do the real work in an async task, because we need to use the network anyway
         new AsyncTask<Object, Integer, String[]>() {

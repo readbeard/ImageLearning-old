@@ -25,9 +25,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -90,6 +93,9 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
     private ArrayList<String> visionWords = new ArrayList<>();
     private String matches;
     private String oldmatches;
+    private WebView myWebView;
+    private ImageButton closeWebView;
+    private String currentURL="";
 
     /**
      * Called on activity create. It sets the proper layout, considering the current orientation, and sets up the view that are
@@ -126,7 +132,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
 
         changeLanguageButton = (ImageButton) findViewById(R.id.change_language);
 
-
+        setUpWebView();
 
         setImageViewBitmap(absolutePath);
         addButtons();
@@ -246,6 +252,14 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                     }
                 });
 
+                calculatedWordButton.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        showWebViewSearch(calculatedWordButton.getText());
+                        return false;
+                    }
+                });
+
                 calculatedWordButton.setLayoutParams(new ActionBar.LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT));
                 calculatedWordButton.setText(next);
                 calculatedWordButton.setCompoundDrawablesWithIntrinsicBounds(0,0,R.mipmap.ic_volume_up_black_24dp,0);
@@ -276,6 +290,45 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
         });
         initializeGraph();
     }
+
+    private void showWebViewSearch(CharSequence text) {
+        myWebView.setVisibility(View.VISIBLE);
+        closeWebView.setVisibility(View.VISIBLE);
+        myWebView.loadUrl("https://www.google.com/search?q="+text);
+        bc.setVisibility(View.GONE);
+    }
+
+    /**
+     * only called by imagebutton in XML code
+     * @param v
+     */
+    public void closeWebViewFromXML(View v){
+        myWebView.setVisibility(View.GONE);
+        closeWebView.setVisibility(View.GONE);
+        currentURL = "";
+        bc.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_BACK:
+                    if (myWebView.canGoBack()) {
+                        myWebView.goBack();
+                    } else {
+                        myWebView.setVisibility(View.GONE);
+                        currentURL="";
+                        closeWebView.setVisibility(View.GONE);
+                        bc.setVisibility(View.VISIBLE);
+                    }
+                    return true;
+            }
+
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
 
     /**
      * Initializes the 'textToSpeech' object, with as default the English language.
@@ -502,11 +555,35 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
             relativeLayout = (RelativeLayout) findViewById(R.id.activity_show_picture_land);
             bc = (BarChart) findViewById(R.id.chart_land);
         }
+        System.out.println("URL: "+currentURL);
+        setUpWebView();
         setImageViewBitmap(absolutePath);
         disableVirtualButtons();
         initializeGraph();
         addButtons();
         super.onConfigurationChanged(newConfig);
+    }
+
+    private void setUpWebView() {
+        myWebView = (WebView) findViewById(R.id.webview);
+        closeWebView = (ImageButton) findViewById(R.id.close_webview_button);
+        myWebView.setWebViewClient(new WebViewClient()
+        {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                Log.i("Listener", "Finish loading: "+ url);
+                currentURL = url;
+            }
+        });
+
+        if(!currentURL.isEmpty()) {
+            System.out.println(currentURL);
+            myWebView.loadUrl(currentURL);
+            myWebView.setVisibility(View.VISIBLE);
+            closeWebView.setVisibility(View.VISIBLE);
+            bc.setVisibility(View.GONE);
+        }
     }
 
     @SuppressWarnings("deprecation")
@@ -603,4 +680,5 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
         disableVirtualButtons();
 
     }
+
 }

@@ -54,11 +54,28 @@
             android:layout_height="wrap_content" />
 
 
+    <WebView
+        android:id="@+id/webview"
+        android:layout_width="match_parent"
+        android:layout_below="@id/buttons_flowlayout"
+        android:visibility="gone"
+        android:layout_height="wrap_content"
+        />
+
+    <ImageButton
+        android:id="@+id/close_webview_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/webview"
+        android:layout_alignEnd="@id/webview"
+        android:visibility="gone"
+        android:onClick="closeWebViewFromXML"
+        android:src="@android:drawable/ic_menu_close_clear_cancel"/>
+
     <com.github.mikephil.charting.charts.BarChart
         android:id="@+id/chart"
         android:layout_below="@id/buttons_flowlayout"
         android:layout_width="match_parent"
-        android:visibility="visible"
         android:layout_height="match_parent" />
 
 
