@@ -270,7 +270,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                     @Override
                     public boolean onLongClick(View v) {
                         showWebViewSearch(calculatedWordButton.getText());
-                        return false;
+                        return true;
                     }
                 });
 
