@@ -187,13 +187,12 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
         xAxis.setGranularity(1f); // minimum axis-step (interval) is 1
         xAxis.setValueFormatter(formatter);
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setLabelRotationAngle(60);
 
 
         BarDataSet dataSet = new BarDataSet(entries,"results interval of confidence");
+        dataSet.setColors(ColorTemplate.JOYFUL_COLORS);
         BarData lineData = new BarData(dataSet);
         bc.setData(lineData);
-        dataSet.setColors(ColorTemplate.JOYFUL_COLORS);
         Description barChartDesc = new Description();
         barChartDesc.setText("");
         bc.setDescription(barChartDesc);
