@@ -2,6 +2,7 @@ package com.google.sample.imagelearning;
 
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.ColorStateList;
@@ -14,6 +15,8 @@ import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -639,8 +642,19 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
      */
     @Override
     public void onComplete(String lang) {
-        currentLanguage = lang;
-        changeLanguage(new Locale(lang));
+        ConnectivityManager cm =
+                (ConnectivityManager)this.getSystemService(CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+        if(isConnected) {
+            currentLanguage = lang;
+            changeLanguage(new Locale(lang));
+        }
+        else
+            Toast.makeText(ShowPictureActivity.this,"An error occurred (internet not working?) please try again",Toast.LENGTH_LONG).show();
+
         disableVirtualButtons();
 
     }
