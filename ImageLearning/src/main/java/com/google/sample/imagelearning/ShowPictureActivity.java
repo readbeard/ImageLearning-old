@@ -1,26 +1,16 @@
 package com.google.sample.imagelearning;
 
 import android.annotation.TargetApi;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.PorterDuff;
-import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
-import android.media.ExifInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.support.v4.content.ContextCompat;
@@ -33,16 +23,13 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.BarChart;
@@ -76,7 +63,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
-import java.util.regex.Pattern;
 
 public class ShowPictureActivity extends AppCompatActivity implements  SelectLanguageDialog.OnCompleteListener{
     private ImageView img;
@@ -167,18 +153,17 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
 
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
-                String res = "";
+                String res = " ";
                 //means that the translation of all the buttons is not finished, some button needs
                 //to fill visionword. Skip for now the
                 if(value < visionWords.size())
-                    res = " "+visionWords.get((int)value);
-                if(res.length()>5)
-                    return res.substring(1,5)+".";
+                    res += visionWords.get((int)value);
+                if(res.length()>10)
+                    return res.substring(1,8)+".";
                 else
                     return res;
 
             }
-
 
 
         };
@@ -602,7 +587,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                                 Log.d("TRANSLATE", "Http requst: " + httpRequest);
                             }
                         })
-                        .setTranslateRequestInitializer(new TranslateRequestInitializer("AIzaSyD07diPeROl9YQQE-BLc7M9YLQCMQIKMQc"))
+                        .setTranslateRequestInitializer(new TranslateRequestInitializer(getString(R.string.cloud_vision_apikey)))
                         .build();
                 try {
                     //Set the language to the one selected by user. This resides in the string 'currentLanguage', that
