@@ -522,6 +522,8 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
     private void setUpWebView() {
         loading = (ProgressBar) findViewById(R.id.progressBar1);
         myWebView = (WebView) findViewById(R.id.webview);
+        myWebView.getSettings().setBuiltInZoomControls(true);
+        myWebView.getSettings().setDisplayZoomControls(false);
         webViewDivisor = (View) findViewById(R.id.divisor5);
         closeWebView = (ImageButton) findViewById(R.id.close_webview_button);
         myWebView.setWebViewClient(new WebViewClient() {
