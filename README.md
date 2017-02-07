@@ -2,7 +2,10 @@
 <img align="right" src="https://github.com/readbeard/ImageLearning/blob/master/github_logo.png">
 ImageLearning it's and Android Applications developed for educational purposes.
 By recognizing subjects of taken pictures, this application can make the user learn 
-new terms in the languages that he preferes. 
+new terms in the languages that he preferes. Also, the user can listen to words in order
+to memorize the pronunciation of it and improve his knowledge not only in writing.
+Finally users can directly search on Google the word the they prefer and browse directly
+inside the application 
 <br></br>
 <br></br>
 ##Features
