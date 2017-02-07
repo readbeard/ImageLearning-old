@@ -21,7 +21,7 @@ Together with the calculated words about the picture, ImageLearning provides a g
 the confidence value of that particular term. This value is a number in the [0,1] interval, 
 that represents the accuracy of the word detection in the image. 
 Informally, for example, for a picture in which the "Coliseum" entity is detected, 
-confidence represents the confidence that there is a tower in the query image.
+confidence represents the confidence that there is a amphitheater in the query image.
 
 ##Technologies used
 ImageLearning exploits distributed services given by Google and Microsoft.
