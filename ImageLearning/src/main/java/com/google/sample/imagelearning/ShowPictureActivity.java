@@ -167,7 +167,11 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
 
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
-                String res = visionWords.get((int)value);
+                String res = "";
+                //means that the translation of all the buttons is not finished, some button needs
+                //to fill visionword. Skip for now the
+                if(value < visionWords.size())
+                    res = " "+visionWords.get((int)value);
                 if(res.length()>5)
                     return res.substring(1,5)+".";
                 else
@@ -176,12 +180,14 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
             }
 
 
+
         };
 
         XAxis xAxis = bc.getXAxis();
         xAxis.setGranularity(1f); // minimum axis-step (interval) is 1
         xAxis.setValueFormatter(formatter);
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setLabelRotationAngle(60);
 
 
         BarDataSet dataSet = new BarDataSet(entries,"results interval of confidence");
@@ -626,6 +632,9 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                         matches = matches + result;
                     //check this, since if rotating the view can be null
                     buttonToTranslate.setText(result);
+
+                    visionWords.add(result);
+                    initializeGraph();
                 }
                 else{
                     Toast.makeText(ShowPictureActivity.this,"An error occurred, please try again",Toast.LENGTH_LONG).show();
@@ -657,6 +666,8 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
         else
             Toast.makeText(ShowPictureActivity.this,"An error occurred (internet not working?) please try again",Toast.LENGTH_LONG).show();
 
+        //cancel values to put translated words
+        visionWords.clear();
         disableVirtualButtons();
 
     }
