@@ -33,3 +33,12 @@ of confidence, the subject of the photo (formally, they’re “powerful image c
 Those services are named, respectively, Google Cloud Vision and Microsoft Computer Vision.
 The calls exposed by both the services are RESTful, and their simplicity and free-to-use first period are the main advantage 
 of usage.
+<br></br>
+<br></br>
+##Library used
+The application exploits a some libraries that allow an easier and nicer representation of the data to be presented. In particular, the dependencies of the app include:
+
+
+- *PhilJay / MPAndroidChart* ( that can be found at https://github.com/PhilJay/MPAndroidChart). A very easy to use library that cares of taking data and display them in a graph. It supports multiple kind of graphs (in this case, a barChart), providing high flexibility in terms of retrieving data, operate with them and show them in a customizable pretty way.
+- *ApmeM / Android-flowlayout* (that can be found at: https://github.com/ApmeM/android-flowlayout ). A library that facilitates displaying views automatically placing them in a way to better exploit the whole screen. Used, in this app, to use all the space available to show buttons containing words.
+- *apl-devs/AppIntro* (that can be found at https://github.com/apl-devs/AppIntro ). Another easy to use library that allows android developers to build their own first-launch tutorial and make their app more and more google-styled. In this application, it was used for this purposes.
