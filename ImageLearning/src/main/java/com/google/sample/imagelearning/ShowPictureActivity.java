@@ -88,6 +88,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
     private String currentURL="";
     private View webViewDivisor;
     private ProgressBar loading;
+    private boolean performing;
 
     /**
      * Called on activity create. It sets the proper layout, considering the current orientation, and sets up the view that are
@@ -238,10 +239,15 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                 calculatedWordButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(calculatedWordButton.getContentDescription()== null)
+                        if(calculatedWordButton.getContentDescription()== null) {
                             calculatedWordButton.startAnimation(myAnim);
-                        else
+                            performing = true;
+                        }
+
+                        else {
                             calculatedWordButton.getAnimation().cancel();
+                            performing = false;
+                        }
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                             //needed to put the text of the button here. You cannot put 'next' since if you change
                             //the button's text, this onClick method won't see that change.
@@ -353,13 +359,16 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
     @Override
     public void onResume() {
         super.onResume();
+
         t1=new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
                 if(status != TextToSpeech.ERROR) {
                     t1.setLanguage(new Locale(currentLanguage));
                 }
+
             }
+
         });
         t1.setOnUtteranceProgressListener(new UtteranceProgressListener() {
             @Override
@@ -371,14 +380,17 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                     curr.getAnimation().cancel();
                 }
             }
+
             //NOT useful at all, but to be implemented together with onStart
             @Override
             public void onDone(String utteranceId) {
+                performing = false;
 
             }
             //NOT useful at all, but to be implemented together with onStart
             @Override
             public void onError(String utteranceId) {
+                performing = false;
 
             }
         });
@@ -391,6 +403,8 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                     curr = (Button) relativeLayout.findViewWithTag("button_"+i);
                     curr.setAnimation(null);
                 }
+                performing = false;
+
             }
         });
 
@@ -650,4 +664,13 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
 
     }
 
+
+    public void showTutorial(View view) {
+        if(performing)
+            Toast.makeText(this,"Wait until speaking finishes...",Toast.LENGTH_LONG).show();
+        else {
+            Intent i = new Intent(ShowPictureActivity.this, IntroActivity.class);
+            startActivity(i);
+        }
+    }
 }
