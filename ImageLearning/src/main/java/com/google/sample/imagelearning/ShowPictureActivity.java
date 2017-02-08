@@ -1,6 +1,7 @@
 package com.google.sample.imagelearning;
 
 import android.annotation.TargetApi;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -88,7 +89,8 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
     private String currentURL="";
     private View webViewDivisor;
     private ProgressBar loading;
-    private boolean performing;
+    private ProgressDialog progressTranslating;
+    private int count;
 
     /**
      * Called on activity create. It sets the proper layout, considering the current orientation, and sets up the view that are
@@ -201,8 +203,13 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
         visionValues ="";
         oldmatches = matches;
         matches="";
-        for(int i =0; i<buttonTotalNumber;i++)
-            translateText("button_"+i);
+        progressTranslating = new ProgressDialog(this);
+        progressTranslating.setMessage("Translating...");
+        progressTranslating.show();
+        count = buttonTotalNumber;
+        for(int i =0; i<buttonTotalNumber;i++) {
+            translateText("button_" + i);
+        }
 
     }
 
@@ -241,12 +248,10 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                     public void onClick(View v) {
                         if(calculatedWordButton.getContentDescription()== null) {
                             calculatedWordButton.startAnimation(myAnim);
-                            performing = true;
                         }
 
                         else {
                             calculatedWordButton.getAnimation().cancel();
-                            performing = false;
                         }
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                             //needed to put the text of the button here. You cannot put 'next' since if you change
@@ -384,13 +389,11 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
             //NOT useful at all, but to be implemented together with onStart
             @Override
             public void onDone(String utteranceId) {
-                performing = false;
 
             }
             //NOT useful at all, but to be implemented together with onStart
             @Override
             public void onError(String utteranceId) {
-                performing = false;
 
             }
         });
@@ -403,7 +406,6 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                     curr = (Button) relativeLayout.findViewWithTag("button_"+i);
                     curr.setAnimation(null);
                 }
-                performing = false;
 
             }
         });
@@ -415,10 +417,10 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
      */
     @Override
     public void onPause(){
-        if(t1 !=null){
+        /*if(t1 !=null){
             t1.stop();
             t1.shutdown();
-        }
+        }*/
         super.onPause();
     }
 
@@ -576,6 +578,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
      */
     private void translateText(final String buttontag) {
         final Button buttonToTranslate = (Button) relativeLayout.findViewWithTag(buttontag);
+
         final String textToTranslate = buttonToTranslate==null? "":buttonToTranslate.getText().toString(); //you need to retrieve the text from main thread
         new AsyncTask<Object, Integer, String>(){
             @Override
@@ -624,9 +627,13 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                         matches = matches + result;
                     //check this, since if rotating the view can be null
                     buttonToTranslate.setText(result);
-
+                    count--;
                     visionWords.add(result);
                     initializeGraph();
+                    if(count ==0) {
+                        progressTranslating.dismiss();
+                        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+                    }
                 }
                 else{
                     Toast.makeText(ShowPictureActivity.this,"An error occurred, please try again",Toast.LENGTH_LONG).show();
@@ -653,6 +660,12 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                 activeNetwork.isConnectedOrConnecting();
         if(isConnected) {
             currentLanguage = lang;
+            //temporarly fix orientation...
+            if(getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            else
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+
             changeLanguage(new Locale(lang));
         }
         else
@@ -666,7 +679,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
 
 
     public void showTutorial(View view) {
-        if(performing)
+        if(t1.isSpeaking())
             Toast.makeText(this,"Wait until speaking finishes...",Toast.LENGTH_LONG).show();
         else {
             Intent i = new Intent(ShowPictureActivity.this, IntroActivity.class);
