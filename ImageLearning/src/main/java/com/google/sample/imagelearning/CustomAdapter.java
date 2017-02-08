@@ -93,7 +93,7 @@ public class CustomAdapter  extends BaseAdapter{
 
         if(selectedIndex!= -1 && position == selectedIndex)
         {
-            holder.tv.setBackgroundColor(ContextCompat.getColor(vi.getContext(),R.color.colorAccent));
+            holder.tv.setBackgroundColor(ContextCompat.getColor(vi.getContext(),R.color.blue));
         }
         else
         {
