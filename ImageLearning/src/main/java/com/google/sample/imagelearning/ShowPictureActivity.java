@@ -91,7 +91,9 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
 
     /**
      * Called on activity create. It sets the proper layout, considering the current orientation, and sets up the view that are
-     * to be used in the whole class. This includes also the buttons, that are dinamically inserted (see addButtons() for more details)
+     * to be used in the whole class. Note that views have the same name even if they belong to two different XMLs, depending
+     * on the orientation. This was done to not write the same code multiple times.
+     * This includes also the buttons, that are dinamically inserted (see addButtons() for more details)
      * and the imageview containing the picture taken by the user. It is resized because of screen sizes issues.
      * @param savedInstanceState
      */
@@ -102,15 +104,13 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
         int orientation = getResources().getConfiguration().orientation;
         if(orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
             setContentView(R.layout.activity_show_picture);
-            relativeLayout = (RelativeLayout) findViewById(R.id.activity_show_picture);
-            bc = (BarChart) findViewById(R.id.chart);
         }
         else {
             setContentView(R.layout.activity_show_picture_land);
-            relativeLayout = (RelativeLayout) findViewById(R.id.activity_show_picture_land);
-            bc = (BarChart) findViewById(R.id.chart_land);
         }
 
+        relativeLayout = (RelativeLayout) findViewById(R.id.activity_show_picture);
+        bc = (BarChart) findViewById(R.id.chart);
         disableVirtualButtons();
 
         scrollViewFlowLayout = (FlowLayout) findViewById(R.id.buttons_flowlayout);
@@ -153,9 +153,10 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
 
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
+                //Since data received from Google have an initial space (" "),
                 String res = " ";
                 //means that the translation of all the buttons is not finished, some button needs
-                //to fill visionword. Skip for now the
+                //to fill visionword. Skip for now the filling, the next button will do it.
                 if(value < visionWords.size())
                     res += visionWords.get((int)value);
                 if(res.length()>10)
@@ -370,12 +371,12 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                     curr.getAnimation().cancel();
                 }
             }
-
+            //NOT useful at all, but to be implemented together with onStart
             @Override
             public void onDone(String utteranceId) {
 
             }
-
+            //NOT useful at all, but to be implemented together with onStart
             @Override
             public void onError(String utteranceId) {
 
@@ -423,11 +424,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
         try {
             FileInputStream fis = new FileInputStream(new File(absolutePath));
             bmp = BitmapFactory.decodeStream(fis);
-            /*bmp =
-                    MainActivity.scaleBitmapDown(
-                            MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.fromFile(new File(absolutePath))),
-                            120);*/
-            //bmp = rotateBitmap(bmp,calculateImageOrientation(absolutePath));
+
             DisplayMetrics display = new DisplayMetrics();
             getWindowManager().getDefaultDisplay().getMetrics(display);
             int screenWidth = display.widthPixels;
@@ -483,18 +480,15 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
     public void onConfigurationChanged(Configuration newConfig){
         if (newConfig.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT) {
             setContentView(R.layout.activity_show_picture);
-            img  = (ImageView) findViewById(R.id.fullscreen_img);
-            relativeLayout = (RelativeLayout) findViewById(R.id.activity_show_picture);
-            bc = (BarChart) findViewById(R.id.chart);
 
         }
         else if (newConfig.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
             setContentView(R.layout.activity_show_picture_land);
-            img  = (ImageView) findViewById(R.id.fullscreen_img);
-            relativeLayout = (RelativeLayout) findViewById(R.id.activity_show_picture_land);
-            bc = (BarChart) findViewById(R.id.chart_land);
         }
 
+        relativeLayout = (RelativeLayout) findViewById(R.id.activity_show_picture);
+        img  = (ImageView) findViewById(R.id.fullscreen_img);
+        bc = (BarChart) findViewById(R.id.chart);
         setUpWebView();
         setImageViewBitmap(absolutePath);
         disableVirtualButtons();

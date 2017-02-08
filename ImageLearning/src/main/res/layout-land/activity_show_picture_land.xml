@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_show_picture_land"
+    android:id="@+id/activity_show_picture"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
@@ -95,7 +95,7 @@
         android:src="@mipmap/ic_close_white_24dp"/>
 
     <com.github.mikephil.charting.charts.BarChart
-        android:id="@+id/chart_land"
+        android:id="@+id/chart"
         android:layout_toEndOf="@id/fullscreen_img"
         android:layout_below="@id/divisor5"
         android:layout_width="match_parent"
