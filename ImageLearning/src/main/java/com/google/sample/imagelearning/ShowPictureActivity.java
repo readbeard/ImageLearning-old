@@ -263,7 +263,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                 calculatedWordButton.setLayoutParams(new ActionBar.LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT));
                 calculatedWordButton.setText(next);
                 calculatedWordButton.setCompoundDrawablesWithIntrinsicBounds(0,0,R.mipmap.ic_volume_up_black_24dp,0);
-                calculatedWordButton.setTextColor(getColor(R.color.colorAccent));
+                calculatedWordButton.setTextColor(ContextCompat.getColor(this,R.color.colorAccent));
                 calculatedWordButton.setTag("button_"+i);
                 if(matches.contains(next)) {
                     calculatedWordButton.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.light_green), PorterDuff.Mode.MULTIPLY);
