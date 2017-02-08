@@ -186,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
                 if (PermissionUtils.permissionGranted(requestCode, CAMERA_PERMISSIONS_REQUEST, grantResults)) {
                     startCamera();
                 }else
+                    Toast.makeText(this, "Sorry, you need to grant permissions to use the app!", Toast.LENGTH_LONG).show();
                     this.finish();         //TODO: react to 'deny' choiche of user
                 break;
         }
