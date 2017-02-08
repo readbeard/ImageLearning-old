@@ -24,9 +24,9 @@ Informally, for example, for a picture in which the "Coliseum" entity is detecte
 confidence represents the confidence that there is a amphitheater in the query image.
 
 ##Technologies used
-ImageLearning exploits distributed services given by Google and Microsoft.
+ImageLearning exploits sotware services given by Google and Microsoft.
 <img align="right" src="https://github.com/readbeard/ImageLearning/blob/master/github_technologies.png">
-In particular, it relies on Platform as a Service (PaaS) Google App Engine and Microsoft Cognitive Services.
+In particular, it relies on Services Google Cloud Vision API and Microsoft Computer Vision API.
 Among all other possibilities, those two providers give the ability to send an image to their cluster of servers 
 that run machine learning based algorithm able to make an estimate about the contents of it, recognizing, with an interval 
 of confidence, the subject of the photo (formally, they’re “powerful image capabilities and easy to use APIs” ). 
