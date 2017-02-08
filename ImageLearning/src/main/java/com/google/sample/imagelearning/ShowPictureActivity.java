@@ -205,6 +205,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
         matches="";
         progressTranslating = new ProgressDialog(this);
         progressTranslating.setMessage("Translating...");
+        progressTranslating.setCancelable(false);
         progressTranslating.show();
         count = buttonTotalNumber;
         for(int i =0; i<buttonTotalNumber;i++) {
