@@ -227,7 +227,7 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
         Scanner scanner = new Scanner(visionValues);
         scanner.useDelimiter(":|\\n|\\s ");
 
-
+        scrollViewFlowLayout.removeAllViews();
         int i = 0;
         int graphEntryCount =0; //put a new Entry in the graph at the right position
         while (scanner.hasNext()) {
@@ -633,12 +633,14 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
                     initializeGraph();
                     if(count ==0) {
                         progressTranslating.dismiss();
+                        addButtons();
                         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
                     }
                 }
                 else{
                     Toast.makeText(ShowPictureActivity.this,"An error occurred, please try again",Toast.LENGTH_LONG).show();
-
+                    progressTranslating.dismiss();
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
                 }
             }
 
@@ -664,8 +666,13 @@ public class ShowPictureActivity extends AppCompatActivity implements  SelectLan
             //temporarly fix orientation...
             if(getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-            else
+            else if(getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            else if(getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE)
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+            else if(getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT)
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
+
 
             changeLanguage(new Locale(lang));
         }
