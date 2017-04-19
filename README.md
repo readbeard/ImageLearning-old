@@ -8,6 +8,7 @@ Finally users can directly search on Google the word the they prefer and browse 
 inside the application 
 <br></br>
 <br></br>
+
 ## Features
 In particular, the application 
 allows the user to take a picture and, by recognizing the subject of it, shows a list
