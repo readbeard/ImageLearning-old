@@ -1,4 +1,4 @@
-#ImageLearning
+# ImageLearning
 <img align="right" src="https://github.com/readbeard/ImageLearning/blob/master/github_logo.png">
 ImageLearning it's and Android Applications developed for educational purposes.
 By recognizing subjects of taken pictures, this application can make the user learn 
