@@ -10,12 +10,9 @@ inside the application
 <br></br>
 
 ## Features
-In particular, the application 
-allows the user to take a picture and, by recognizing the subject of it, shows a list
-of estimated results. Those results are pretty close to the real object the user 
-of terms related to the subject of the photo. It also provides a translation of the given terms, to make the user learn how to pronounce the term in different languages. 
+First of all, when app launched the first time, a nice tutorial presenting the main features in a pretty way is shown. This tutorial can be launched by user clicking on the help button on the bottom left of the picture, in the main view of the application, as shown in the following figure.
+ImageLearning allows the user to take a picture, and gives him back some buttons displaying terms related to the subject of the photo. The data is retrieved by two providers (see below) and if a match between their calculations is found, it is shown in a light green button. It also provides a translation of the given terms, to make the user learn how to pronounce the term in different languages. In fact, a user can click on a button and listen to the pronunciation of the word. To change the language of the contents of the screen, a white button on the bottom right  of the picture is shown. From there, a user can select from a list of languages the one that he prefers.
 At this state of the art, the application supports 5 languages: English (UK), Italian, Spanish, French and German.
-
 ![Image of Screens](https://github.com/readbeard/ImageLearning/blob/master/github_imagelearning.png)
 ### But that’s not all! 
 Together with the calculated words about the picture, ImageLearning provides a graph showing
