@@ -33,7 +33,7 @@ The calls exposed by both the services are RESTful, and their simplicity and fre
 of usage.
 <br></br>
 <br></br>
-## Library used
+## Libraries used
 The application exploits a some libraries that allow an easier and nicer representation of the data to be presented. In particular, the dependencies of the app include:
 
 
